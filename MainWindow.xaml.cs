@@ -31,7 +31,11 @@ namespace NuSpecHelper
                 var d = new DirectoryInfo(".");
                 Folder.Text = d.FullName;
             }
+
+            _r = new RichTextBoxReporter(Report);
         }
+
+        private RichTextBoxReporter _r;
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
@@ -39,21 +43,21 @@ namespace NuSpecHelper
                 return;
             foreach (var nureq in getNuSpecs(new DirectoryInfo(Folder.Text)))
             {
-                Report.Text += nureq.Report();    
+                nureq.Report(_r);    
             }
-            Report.Text += "Completed.";
+            _r.AppendLine("Completed.");
         }
 
         private bool SetupNewReport()
         {
             if (!Directory.Exists(Folder.Text))
             {
-                Report.Text = @"Folder not found.";
+                _r.AppendLine(@"Folder not found.");
                 return true;
             }
             Settings.Default.SearchFolder = Folder.Text;
             Settings.Default.Save();
-            Report.Text = "";
+            Report.Document  = new FlowDocument();
             return false;
         }
 
@@ -77,9 +81,9 @@ namespace NuSpecHelper
 
             foreach (var nuspec in allNuSpecs)
             {
-                Report.Text += nuspec.ReportArrear(allNuSpecs);        
+                nuspec.ReportArrear(allNuSpecs, _r);
             }
-            Report.Text += "Completed.";
+            _r.AppendLine("Completed.");
         }
     }
 }

@@ -4,7 +4,13 @@
         Title="MainWindow" Height="350" Width="525">
     <Grid>
         <Button Content="Find dependency inconsistencies in Nuspec." Margin="90,38,10.4,0" VerticalAlignment="Top" Click="ButtonBase_OnClick" />
-        <TextBox VerticalScrollBarVisibility="Auto" x:Name="Report" Margin="10,92,10.4,9.8" TextWrapping="Wrap" Background="LightYellow" Text=""/>
+        <RichTextBox VerticalScrollBarVisibility="Auto" x:Name="Report" Margin="10,92,10.4,9.8" Background="LightYellow" >
+            <RichTextBox.Resources>
+                <Style TargetType="{x:Type Paragraph}">
+                    <Setter Property="Margin" Value="0"/>
+                </Style>
+            </RichTextBox.Resources>
+        </RichTextBox>
         <TextBox x:Name="Folder" Height="23" Margin="90,10,10.4,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top"/>
         <Label Content="Folder:" HorizontalAlignment="Left" Margin="10,7,0,0" VerticalAlignment="Top" Width="75"/>
         <Button Content="Find updatable libraries." Margin="90,65,10.4,0" VerticalAlignment="Top" Click="FindUpdate" />

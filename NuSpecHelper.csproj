@@ -54,9 +54,11 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="CsProj.cs" />
+    <Compile Include="IReporter.cs" />
     <Compile Include="PackageIdentity.cs" />
     <Compile Include="ProjectPackages.cs" />
     <Compile Include="Repository.cs" />
+    <Compile Include="RichTextBoxReporter.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

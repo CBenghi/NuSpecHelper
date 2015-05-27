@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace NuSpecHelper
 {
@@ -134,15 +135,15 @@ namespace NuSpecHelper
         }
 
 
-        internal string Report()
+        internal void Report(IReporter reporter)
         {
             if (!Dependencies.Any())
-                return "";
-            var sb = new StringBuilder();
-            sb.AppendLine(@"===" + SpecFile.FullName);
+                return;
+
+            reporter.AppendLine(@"===" + SpecFile.FullName);
             foreach (var dep in Dependencies)
             {
-                string reqMismatch = @"";
+                reporter.AppendLine(@"  - " + dep.Id + " " + dep.Version);
                 foreach (var project in Projects)
                 {
                     var rp = project.RequiredPackages.FirstOrDefault(p => p.Id == dep.Id);
@@ -150,36 +151,25 @@ namespace NuSpecHelper
                         continue;
                     if (rp.Version != dep.Version)
                     {
-                        reqMismatch += string.Format("    - Mismatch: {0} required for {1}\r\n", rp.Version, project.ConfigFile.Directory.Name);
+                        reporter.AppendLine(string.Format("    - Mismatch: {0} referenced in {1}", rp.Version, project.ConfigFile.Directory.Name), Brushes.OrangeRed);
                     }
-
                 }
-                sb.AppendLine(@"  - " + dep.Id + " " + dep.Version);
-                sb.Append(reqMismatch);
-
             }
-
-            //sb.AppendLine(@"= All dependencies");
-            //foreach (var dep in AllDependencies)
-            //{
-            //    sb.AppendLine(@" - " + dep.Id + " " + dep.Version);
-            //}
-            return sb.ToString();
         }
 
-        internal string ReportArrear(List<NuSpec> allNuSpecs)
+        internal void ReportArrear(List<NuSpec> allNuSpecs, IReporter reporter)
         {
             var lst = allNuSpecs.Where(x => x.Identity == null).ToArray();
             foreach (var l in lst)
             {
                 Debug.Write("");
             }
-            
+
             if (!Dependencies.Any())
-                return "";
-            var sb = new StringBuilder();
-            sb.AppendLine(@"===" + SpecFile.FullName);
-            sb.AppendFormat("[{0}, {1}]\r\n", Identity.Id, Identity.Version);
+                return;
+
+            reporter.AppendLine(@"===" + SpecFile.FullName);
+            reporter.AppendLine(string.Format("[{0}, {1}]", Identity.Id, Identity.Version));
             foreach (var dep in Dependencies)
             {
                 var depName = dep.Id;
@@ -190,13 +180,12 @@ namespace NuSpecHelper
                 {
                     depRes = depMatch.Identity.Version;
                 }
-                sb.AppendFormat(" - {0}: req: {1} avail: {2}\r\n", depName, depReq, depRes);
+                reporter.AppendLine(string.Format(" - {0}: req: {1} avail: {2}", depName, depReq, depRes));
                 if (depRes != "<unknown>" && depReq != depRes)
                 {
-                    sb.AppendLine("   => WARNING, check the match.");
+                    reporter.AppendLine("   => WARNING, check the match.", Brushes.OrangeRed);
                 }
             }
-            return sb.ToString();
         }
     }
 }
