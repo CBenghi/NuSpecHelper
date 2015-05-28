@@ -36,17 +36,40 @@ namespace NuSpecHelper
             using (var sr = ConfigFile.OpenText())
             {
                 var content = sr.ReadToEnd();
-                string pattern = @"<package id=""(?<Name>.*)"" version=""(?<Version>.*)"" targetFramework";
-                const RegexOptions regexOptions = RegexOptions.None;
-                var regex = new Regex(pattern, regexOptions);
-                foreach (Match mtch in regex.Matches(content))
+                if (ConfigFile.Name == "packages.config")
                 {
-                    var p = new PackageIdentity()
+                    string pattern = @"<package id=""(?<Name>.*)"" version=""(?<Version>.*)"" targetFramework";
+                    const RegexOptions regexOptions = RegexOptions.None;
+                    var regex = new Regex(pattern, regexOptions);
+                    foreach (Match mtch in regex.Matches(content))
                     {
-                        Id = mtch.Groups[@"Name"].Value,
-                        Version = mtch.Groups[@"Version"].Value
-                    };
-                    _RequiredPackages.Add(p);
+                        var p = new PackageIdentity()
+                        {
+                            Id = mtch.Groups[@"Name"].Value,
+                            Version = mtch.Groups[@"Version"].Value
+                        };
+                        _RequiredPackages.Add(p);
+                    }
+                }
+                else if (ConfigFile.Extension == ".vcxproj")
+                {
+                    var found = new List<string>();
+                    string pattern = @"<HintPath>\.\.\\packages\\(?<Name>[A-Za-z\.]*)\.(?<Version>[\d\.]*)\\(.*)</HintPath>";
+                    const RegexOptions regexOptions = RegexOptions.None;
+                    var regex = new Regex(pattern, regexOptions);
+                    foreach (Match mtch in regex.Matches(content))
+                    {
+                        var p = new PackageIdentity()
+                        {
+                            Id = mtch.Groups[@"Name"].Value,
+                            Version = mtch.Groups[@"Version"].Value
+                        };
+                        if (!found.Contains(p.FullName))
+                        {
+                            _RequiredPackages.Add(p);
+                            found.Add(p.FullName);
+                        }
+                    }
                 }
             }
         }
@@ -56,6 +79,10 @@ namespace NuSpecHelper
         static internal IEnumerable<ProjectPackages> GetFromDir(DirectoryInfo dir)
         {
             foreach (var found in dir.GetFiles(@"*packages.config"))
+            {
+                yield return new ProjectPackages(found);
+            }
+            foreach (var found in dir.GetFiles(@"*.vcxproj"))
             {
                 yield return new ProjectPackages(found);
             }

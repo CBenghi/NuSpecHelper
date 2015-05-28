@@ -10,5 +10,10 @@ namespace NuSpecHelper
     {
         public string Id;
         public string Version;
+
+        public string FullName
+        {
+            get { return Id + "." + Version; }
+        }
     }
 }
