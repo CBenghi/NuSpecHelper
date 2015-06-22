@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -85,5 +86,42 @@ namespace NuSpecHelper
             }
             _r.AppendLine("Completed.");
         }
+
+        Dictionary<string, string> _assemblyFrameworks = new Dictionary<string, string>();
+
+        private void ListClr(object sender, RoutedEventArgs e)
+        {
+            var ff = new FileFinder {Pattern = @"\.dll$"};
+            foreach (var fl in ff.Files(new DirectoryInfo(Folder.Text)))
+            {
+                if (!_assemblyFrameworks.ContainsKey(fl.Name))
+                {
+                    _r.AppendLine(fl + " (prev loaded):" + _assemblyFrameworks[fl.Name]);
+                }
+                else
+                {
+                    var v = ClrVNumber(fl.FullName);
+                    _assemblyFrameworks.Add(fl.Name, v);
+                    _r.AppendLine(fl + " " + v);
+                }
+            }
+        }
+
+        private string ClrVNumber(string fileName)
+        {
+            var asbly = System.Reflection.Assembly.LoadFrom(fileName);
+            var version = asbly.ImageRuntimeVersion;
+
+            var list = asbly.GetCustomAttributes(true);
+            var a = list.OfType<TargetFrameworkAttribute>().FirstOrDefault();
+            if (a != null)
+            {
+                Console.WriteLine(a.FrameworkName);
+                Console.WriteLine(a.FrameworkDisplayName);
+            }
+
+            return version;
+        }
+
     }
 }
