@@ -94,7 +94,7 @@ namespace NuSpecHelper
             var ff = new FileFinder {Pattern = @"\.dll$"};
             foreach (var fl in ff.Files(new DirectoryInfo(Folder.Text)))
             {
-                if (!_assemblyFrameworks.ContainsKey(fl.Name))
+                if (_assemblyFrameworks.ContainsKey(fl.Name))
                 {
                     _r.AppendLine(fl + " (prev loaded):" + _assemblyFrameworks[fl.Name]);
                 }
@@ -118,6 +118,7 @@ namespace NuSpecHelper
             {
                 Console.WriteLine(a.FrameworkName);
                 Console.WriteLine(a.FrameworkDisplayName);
+                version += " " + a.FrameworkDisplayName;
             }
 
             return version;
