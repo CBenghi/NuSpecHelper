@@ -91,7 +91,7 @@ namespace NuSpecHelper
 
         private void ListClr(object sender, RoutedEventArgs e)
         {
-            var ff = new FileFinder {Pattern = @"\.dll$"};
+            var ff = new FileFinder {Pattern = @"\.(dll|exe)$"};
             foreach (var fl in ff.Files(new DirectoryInfo(Folder.Text)))
             {
                 if (_assemblyFrameworks.ContainsKey(fl.Name))
@@ -109,20 +109,26 @@ namespace NuSpecHelper
 
         private string ClrVNumber(string fileName)
         {
-            var asbly = System.Reflection.Assembly.LoadFrom(fileName);
-            var version = asbly.ImageRuntimeVersion;
-
-            var list = asbly.GetCustomAttributes(true);
-            var a = list.OfType<TargetFrameworkAttribute>().FirstOrDefault();
-            if (a != null)
+            try
             {
-                Console.WriteLine(a.FrameworkName);
-                Console.WriteLine(a.FrameworkDisplayName);
-                version += " " + a.FrameworkDisplayName;
+                var asbly = System.Reflection.Assembly.LoadFrom(fileName);
+                var version = asbly.ImageRuntimeVersion;
+
+                var list = asbly.GetCustomAttributes(true);
+                var a = list.OfType<TargetFrameworkAttribute>().FirstOrDefault();
+                if (a != null)
+                {
+                    Console.WriteLine(a.FrameworkName);
+                    Console.WriteLine(a.FrameworkDisplayName);
+                    version += " " + a.FrameworkDisplayName;
+                }
+
+                return version;
             }
-
-            return version;
+            catch (Exception)
+            {
+                return "Not a Net Assembly.";
+            }
         }
-
     }
 }
