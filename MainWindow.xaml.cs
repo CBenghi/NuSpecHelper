@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using FindConflictingReference;
 using NuSpecHelper.Properties;
 
 namespace NuSpecHelper
@@ -129,6 +130,11 @@ namespace NuSpecHelper
             {
                 return "Not a Net Assembly.";
             }
+        }
+
+        private void FindConflict(object sender, RoutedEventArgs e)
+        {
+            ConflictFinder.FindConflicts(_r, Folder.Text);
         }
     }
 }
