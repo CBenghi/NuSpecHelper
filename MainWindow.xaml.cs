@@ -1,19 +1,11 @@
-﻿using System.IO;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Versioning;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using FindConflictingReference;
 using NuSpecHelper.Properties;
 
@@ -22,7 +14,7 @@ namespace NuSpecHelper
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow 
     {
         public MainWindow()
         {
@@ -37,15 +29,18 @@ namespace NuSpecHelper
             _r = new RichTextBoxReporter(Report);
         }
 
-        private RichTextBoxReporter _r;
+        private readonly RichTextBoxReporter _r;
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
+            RemovePackageButton.IsEnabled = false;
             if (SetupNewReport()) 
                 return;
-            foreach (var nureq in getNuSpecs(new DirectoryInfo(Folder.Text)))
+            foreach (var nureq in GetNuSpecs(new DirectoryInfo(Folder.Text)))
             {
-                nureq.Report(_r);    
+                nureq.Report(_r);
+                if (nureq.OldPackages().Any())
+                    RemovePackageButton.IsEnabled = true;
             }
             _r.AppendLine("Completed.");
         }
@@ -63,13 +58,13 @@ namespace NuSpecHelper
             return false;
         }
 
-        private IEnumerable<NuSpec> getNuSpecs(DirectoryInfo directoryInfo)
+        private static IEnumerable<NuSpec> GetNuSpecs(DirectoryInfo directoryInfo)
         {
             foreach (var fonnd in directoryInfo.GetFiles(@"*.nuspec"))
             {
                 yield return new NuSpec(fonnd);
             }
-            foreach (var subFound in directoryInfo.EnumerateDirectories().SelectMany(getNuSpecs))
+            foreach (var subFound in directoryInfo.EnumerateDirectories().SelectMany(GetNuSpecs))
             {
                 yield return subFound;
             }
@@ -79,7 +74,7 @@ namespace NuSpecHelper
         {
             if (SetupNewReport())
                 return;
-            var allNuSpecs = getNuSpecs(new DirectoryInfo(Folder.Text)).ToList();
+            var allNuSpecs = GetNuSpecs(new DirectoryInfo(Folder.Text)).ToList();
 
             foreach (var nuspec in allNuSpecs)
             {
@@ -88,7 +83,7 @@ namespace NuSpecHelper
             _r.AppendLine("Completed.");
         }
 
-        Dictionary<string, string> _assemblyFrameworks = new Dictionary<string, string>();
+        readonly Dictionary<string, string> _assemblyFrameworks = new Dictionary<string, string>();
 
         private void ListClr(object sender, RoutedEventArgs e)
         {
@@ -108,22 +103,21 @@ namespace NuSpecHelper
             }
         }
 
-        private string ClrVNumber(string fileName)
+        private static string ClrVNumber(string fileName)
         {
             try
             {
-                var asbly = System.Reflection.Assembly.LoadFrom(fileName);
+                var asbly = Assembly.LoadFrom(fileName);
                 var version = asbly.ImageRuntimeVersion;
 
                 var list = asbly.GetCustomAttributes(true);
                 var a = list.OfType<TargetFrameworkAttribute>().FirstOrDefault();
-                if (a != null)
-                {
-                    Console.WriteLine(a.FrameworkName);
-                    Console.WriteLine(a.FrameworkDisplayName);
-                    version += " " + a.FrameworkDisplayName;
-                }
-
+                if (a == null) 
+                    return version;
+                
+                Console.WriteLine(a.FrameworkName);
+                Console.WriteLine(a.FrameworkDisplayName);
+                version += " " + a.FrameworkDisplayName;
                 return version;
             }
             catch (Exception)
@@ -135,6 +129,26 @@ namespace NuSpecHelper
         private void FindConflict(object sender, RoutedEventArgs e)
         {
             ConflictFinder.FindConflicts(_r, Folder.Text);
+        }
+
+        private void RemoveUnused(object sender, RoutedEventArgs e)
+        {
+            if (SetupNewReport())
+                return;
+            foreach (var nureq in GetNuSpecs(new DirectoryInfo(Folder.Text)))
+            {
+                if (nureq.OldPackages().Any())
+                {
+                    _r.AppendLine("Cleaning " + nureq.Identity.FullName);   
+                }
+                foreach (var oldpackage in nureq.OldPackages())
+                {
+                    _r.AppendLine("removing " + oldpackage.FullName);   
+                    nureq.DeleteDownloadedPackage(oldpackage);
+                }
+            }
+            _r.AppendLine("Completed.");
+            RemovePackageButton.IsEnabled = false;
         }
     }
 }

@@ -187,5 +187,103 @@ namespace NuSpecHelper
                 }
             }
         }
+
+        private DirectoryInfo PackagesFolder
+        {
+            get
+            {
+                if (SpecFile == null || SpecFile.Directory == null)
+                    return null;
+                var dir = SpecFile.Directory.GetDirectories("packages").FirstOrDefault();
+                return dir;
+            }
+        }
+
+        IEnumerable<PackageIdentity> GetAvailablePackages()
+        {
+            var re = new Regex(@"\.\d");
+
+            if (PackagesFolder == null)
+                yield break;
+            foreach (var dir in PackagesFolder.GetDirectories())
+            {
+                var m = re.Match(dir.Name);
+                if (!m.Success)
+                    continue;
+                var left = dir.Name.Substring(0, m.Index);
+                var right = dir.Name.Substring(m.Index + 1);
+                yield return new PackageIdentity() {Id = left, Version = right};
+            }
+        }
+
+        internal IEnumerable<PackageIdentity> OldPackages()
+        {
+            if (_projects == null)
+                Init();
+            var ps = GetAvailablePackages().ToList();
+            foreach (var project in _projects)
+            {
+                foreach (var requiredPackage in project.RequiredPackages)
+                {
+                    ps.RemoveAll(x => x.FullName == requiredPackage.FullName);
+                }
+            }
+            return ps;
+        }
+
+        internal void DeleteDownloadedPackage(PackageIdentity oldpackage)
+        {
+            if (PackagesFolder == null)
+                return;
+            var dir = PackagesFolder.GetDirectories(oldpackage.FullName).FirstOrDefault();
+            if (dir == null)
+                return;
+            Debug.WriteLine(dir.FullName);
+
+            DeleteDirectory(dir.FullName, true);
+            // dir.Delete(true);
+        }
+
+        public static void DeleteDirectory(string path)
+        {
+            DeleteDirectory(path, false);
+        }
+
+        public static void DeleteDirectory(string path, bool recursive)
+        {
+            // Delete all files and sub-folders?
+            if (recursive)
+            {
+                // Yep... Let's do this
+                var subfolders = Directory.GetDirectories(path);
+                foreach (var s in subfolders)
+                {
+                    DeleteDirectory(s, recursive);
+                }
+            }
+
+            // Get all files of the folder
+            var files = Directory.GetFiles(path);
+            foreach (var f in files)
+            {
+                // Get the attributes of the file
+                var attr = File.GetAttributes(f);
+
+                // Is this file marked as 'read-only'?
+                if ((attr & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
+                {
+                    // Yes... Remove the 'read-only' attribute, then
+                    File.SetAttributes(f, attr ^ FileAttributes.ReadOnly);
+                }
+
+                // Delete the file
+                File.Delete(f);
+            }
+
+            // When we get here, all the files of the folder were
+            // already deleted, so we just delete the empty folder
+            Directory.Delete(path);
+        }
+
     }
 }

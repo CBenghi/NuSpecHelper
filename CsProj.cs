@@ -1,20 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NuSpecHelper
 {
     class CsProj
     {
-        private FileInfo found;
+        private FileInfo _nuspecFile;
 
-        public CsProj(FileInfo found)
+        public CsProj(FileInfo nuspecFile)
         {
-            this.found = found;
-
+            _nuspecFile = nuspecFile;
         }
 
         static IEnumerable<CsProj> GetFromDir(DirectoryInfo dir)
@@ -28,6 +24,5 @@ namespace NuSpecHelper
                 yield return subFound;
             }
         }
-
     }
 }
