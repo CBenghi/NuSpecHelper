@@ -54,7 +54,7 @@ namespace NuSpecHelper
                 else if (ConfigFile.Extension == ".vcxproj")
                 {
                     var found = new List<string>();
-                    string pattern = @"<HintPath>\.\.\\packages\\(?<Name>[A-Za-z\.]*)\.(?<Version>[\d\.]*)\\(.*)</HintPath>";
+                    string pattern = @"<HintPath>\.\.\\packages\\(?<Name>[A-Za-z\.]*)\.(?<Version>[\d-V\.]*)\\(.*)</HintPath>";
                     const RegexOptions regexOptions = RegexOptions.None;
                     var regex = new Regex(pattern, regexOptions);
                     foreach (Match mtch in regex.Matches(content))

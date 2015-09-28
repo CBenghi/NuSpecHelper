@@ -140,7 +140,7 @@ namespace NuSpecHelper
             if (!Dependencies.Any())
                 return;
 
-            reporter.AppendLine(@"===" + SpecFile.FullName);
+            reporter.AppendLine(@"===" + SpecFile.FullName, Brushes.Blue);
             foreach (var dep in Dependencies)
             {
                 reporter.AppendLine(@"  - " + dep.Id + " " + dep.Version);
@@ -168,7 +168,7 @@ namespace NuSpecHelper
             if (!Dependencies.Any())
                 return;
 
-            reporter.AppendLine(@"===" + SpecFile.FullName);
+            reporter.AppendLine(@"===" + SpecFile.FullName, Brushes.Blue);
             reporter.AppendLine(string.Format("[{0}, {1}]", Identity.Id, Identity.Version));
             foreach (var dep in Dependencies)
             {
