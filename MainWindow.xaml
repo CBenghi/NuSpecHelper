@@ -14,7 +14,7 @@
         <TextBox x:Name="Folder" Height="23" Margin="90,10,10.4,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top"/>
         <Label Content="Folder:" HorizontalAlignment="Left" Margin="10,7,0,0" VerticalAlignment="Top" Width="75"/>
         <Button Content="Find updatable libraries." Margin="90,65,10.4,0" VerticalAlignment="Top" Click="FindUpdate" />
-        <Button Content="List clr version." Margin="10,0,0,9.8" Click="ListClr" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="109" />
+        <Button Content="List clr version." Margin="8,0,0,10" Click="ListClr" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="109" />
         <Button Content="Find dll Conflict" Margin="124,0,0,9.8" Click="FindConflict" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="109" />
         <Button x:Name="RemovePackageButton" IsEnabled="False" Content="Remove Unused Packages" Margin="238,0,0,9.8" Click="RemoveUnused" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="152" />
     </Grid>

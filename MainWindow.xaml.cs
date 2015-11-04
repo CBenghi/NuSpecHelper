@@ -8,13 +8,14 @@ using System.Windows;
 using System.Windows.Documents;
 using FindConflictingReference;
 using NuSpecHelper.Properties;
+using XbimPlugin.MvdXML.Viewing;
 
 namespace NuSpecHelper
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow 
+    public partial class MainWindow
     {
         public MainWindow()
         {
@@ -33,16 +34,19 @@ namespace NuSpecHelper
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            RemovePackageButton.IsEnabled = false;
-            if (SetupNewReport()) 
-                return;
-            foreach (var nureq in GetNuSpecs(new DirectoryInfo(Folder.Text)))
+            using (new WaitCursor())
             {
-                nureq.Report(_r);
-                if (nureq.OldPackages().Any())
-                    RemovePackageButton.IsEnabled = true;
+                RemovePackageButton.IsEnabled = false;
+                if (SetupNewReport())
+                    return;
+                foreach (var nureq in GetNuSpecs(new DirectoryInfo(Folder.Text)))
+                {
+                    nureq.Report(_r);
+                    if (nureq.OldPackages().Any())
+                        RemovePackageButton.IsEnabled = true;
+                }
+                _r.AppendLine("Completed.");
             }
-            _r.AppendLine("Completed.");
         }
 
         private bool SetupNewReport()
@@ -54,7 +58,7 @@ namespace NuSpecHelper
             }
             Settings.Default.SearchFolder = Folder.Text;
             Settings.Default.Save();
-            Report.Document  = new FlowDocument();
+            Report.Document = new FlowDocument();
             return false;
         }
 
@@ -72,33 +76,39 @@ namespace NuSpecHelper
 
         private void FindUpdate(object sender, RoutedEventArgs e)
         {
-            if (SetupNewReport())
-                return;
-            var allNuSpecs = GetNuSpecs(new DirectoryInfo(Folder.Text)).ToList();
-
-            foreach (var nuspec in allNuSpecs)
+            using (new WaitCursor())
             {
-                nuspec.ReportArrear(allNuSpecs, _r);
+                if (SetupNewReport())
+                    return;
+                var allNuSpecs = GetNuSpecs(new DirectoryInfo(Folder.Text)).ToList();
+
+                foreach (var nuspec in allNuSpecs)
+                {
+                    nuspec.ReportArrear(allNuSpecs, _r);
+                }
+                _r.AppendLine("Completed.");
             }
-            _r.AppendLine("Completed.");
         }
 
-        readonly Dictionary<string, string> _assemblyFrameworks = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _assemblyFrameworks = new Dictionary<string, string>();
 
         private void ListClr(object sender, RoutedEventArgs e)
         {
-            var ff = new FileFinder {Pattern = @"\.(dll|exe)$"};
-            foreach (var fl in ff.Files(new DirectoryInfo(Folder.Text)))
+            using (new WaitCursor())
             {
-                if (_assemblyFrameworks.ContainsKey(fl.Name))
+                var ff = new FileFinder {Pattern = @"\.(dll|exe)$"};
+                foreach (var fl in ff.Files(new DirectoryInfo(Folder.Text)))
                 {
-                    _r.AppendLine(fl + " (prev loaded):" + _assemblyFrameworks[fl.Name]);
-                }
-                else
-                {
-                    var v = ClrVNumber(fl.FullName);
-                    _assemblyFrameworks.Add(fl.Name, v);
-                    _r.AppendLine(fl + " " + v);
+                    if (_assemblyFrameworks.ContainsKey(fl.Name))
+                    {
+                        _r.AppendLine(fl + " (prev loaded):" + _assemblyFrameworks[fl.Name]);
+                    }
+                    else
+                    {
+                        var v = ClrVNumber(fl.FullName);
+                        _assemblyFrameworks.Add(fl.Name, v);
+                        _r.AppendLine(fl + " " + v);
+                    }
                 }
             }
         }
@@ -112,9 +122,9 @@ namespace NuSpecHelper
 
                 var list = asbly.GetCustomAttributes(true);
                 var a = list.OfType<TargetFrameworkAttribute>().FirstOrDefault();
-                if (a == null) 
+                if (a == null)
                     return version;
-                
+
                 Console.WriteLine(a.FrameworkName);
                 Console.WriteLine(a.FrameworkDisplayName);
                 version += " " + a.FrameworkDisplayName;
@@ -133,22 +143,25 @@ namespace NuSpecHelper
 
         private void RemoveUnused(object sender, RoutedEventArgs e)
         {
-            if (SetupNewReport())
-                return;
-            foreach (var nureq in GetNuSpecs(new DirectoryInfo(Folder.Text)))
+            using (new WaitCursor())
             {
-                if (nureq.OldPackages().Any())
+                if (SetupNewReport())
+                    return;
+                foreach (var nureq in GetNuSpecs(new DirectoryInfo(Folder.Text)))
                 {
-                    _r.AppendLine("Cleaning " + nureq.Identity.FullName);   
+                    if (nureq.OldPackages().Any())
+                    {
+                        _r.AppendLine("Cleaning " + nureq.Identity.FullName);
+                    }
+                    foreach (var oldpackage in nureq.OldPackages())
+                    {
+                        _r.AppendLine("removing " + oldpackage.FullName);
+                        nureq.DeleteDownloadedPackage(oldpackage);
+                    }
                 }
-                foreach (var oldpackage in nureq.OldPackages())
-                {
-                    _r.AppendLine("removing " + oldpackage.FullName);   
-                    nureq.DeleteDownloadedPackage(oldpackage);
-                }
+                _r.AppendLine("Completed.");
+                RemovePackageButton.IsEnabled = false;
             }
-            _r.AppendLine("Completed.");
-            RemovePackageButton.IsEnabled = false;
         }
     }
 }

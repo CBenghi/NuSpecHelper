@@ -149,7 +149,7 @@ namespace NuSpecHelper
                     var rp = project.RequiredPackages.FirstOrDefault(p => p.Id == dep.Id);
                     if (rp == null)
                         continue;
-                    if (rp.Version != dep.Version)
+                    if (string.Compare(rp.Version, dep.Version, StringComparison.CurrentCulture) != 0)
                     {
                         reporter.AppendLine(string.Format("    - Mismatch: {0} referenced in {1}", rp.Version, project.ConfigFile.Directory.Name), Brushes.OrangeRed);
                     }
@@ -180,11 +180,12 @@ namespace NuSpecHelper
                 {
                     depRes = depMatch.Identity.Version;
                 }
-                reporter.AppendLine(string.Format(" - {0}: req: {1} avail: {2}", depName, depReq, depRes));
-                if (depRes != "<unknown>" && depReq != depRes)
-                {
-                    reporter.AppendLine("   => WARNING, check the match.", Brushes.OrangeRed);
-                }
+
+                var repColor = depRes != "<unknown>" && depReq != depRes
+                    ? Brushes.OrangeRed
+                    : null;
+
+                reporter.AppendLine(string.Format(" - {0}: req: {1} avail: {2}", depName, depReq, depRes), repColor);
             }
         }
 
