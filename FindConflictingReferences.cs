@@ -80,12 +80,25 @@ namespace FindConflictingReference
             foreach (var group in groupsOfConflicts)
             {
                 output.AppendLine(String.Format("Possible conflicts for {0}:", group.Key), Brushes.OrangeRed);
-                
+
+                var tmpDic = new Dictionary<string, List<string>>();
                 foreach (var reference in group)
                 {
-                    output.AppendLine(String.Format("{0} references {1}",
-                        reference.Assembly.Name.PadRight(25),
-                        reference.ReferencedAssembly.FullName));
+                    List<string> dicItem;
+                    if ( tmpDic.TryGetValue(reference.ReferencedAssembly.FullName, out dicItem))
+                        dicItem.Add(reference.Assembly.Name);
+                    else
+                    {
+                        tmpDic.Add(reference.ReferencedAssembly.FullName, new List<string>() {reference.Assembly.Name});
+                    }
+                }
+                foreach (var pair in tmpDic)
+                {
+                    output.AppendLine("- " + pair.Key, Brushes.Blue);
+                    foreach (var item in pair.Value)
+                    {
+                        output.AppendLine("  - " + item);
+                    }
                 }
             }
         }        
