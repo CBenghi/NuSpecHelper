@@ -6,9 +6,11 @@ using System.Reflection;
 using System.Runtime.Versioning;
 using System.Windows;
 using System.Windows.Documents;
+using System.Windows.Media;
 using FindConflictingReference;
-using NuSpecHelper.Properties;
+using NuGet;
 using XbimPlugin.MvdXML.Viewing;
+using Settings = NuSpecHelper.Properties.Settings;
 
 namespace NuSpecHelper
 {
@@ -34,6 +36,8 @@ namespace NuSpecHelper
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
+            
+            
             using (new WaitCursor())
             {
                 RemovePackageButton.IsEnabled = false;
@@ -73,7 +77,7 @@ namespace NuSpecHelper
                 yield return subFound;
             }
         }
-
+        
         private void FindUpdate(object sender, RoutedEventArgs e)
         {
             using (new WaitCursor())
@@ -161,6 +165,34 @@ namespace NuSpecHelper
                 }
                 _r.AppendLine("Completed.");
                 RemovePackageButton.IsEnabled = false;
+            }
+        }
+
+        private void TestNugetOrg(object sender, RoutedEventArgs e)
+        {
+            using (new WaitCursor())
+            {
+                var repo = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2");
+                // var packages = repo.Search("BuildingSmart", false).ToList();
+                if (SetupNewReport())
+                    return;
+                var allNuSpecs = GetNuSpecs(new DirectoryInfo(Folder.Text)).ToList();
+
+                foreach (var nuspec in allNuSpecs)
+                {
+                    _r.AppendLine("Testing " + nuspec.Identity.FullName);
+                    foreach (var dep in nuspec.AllDependencies)
+                    {
+                        var depFnd = repo.FindPackage(dep.Id, SemanticVersion.Parse(dep.Version));
+                        if (depFnd == null)
+                            _r.AppendLine("- Error: " + dep.FullName, Brushes.Red);
+                        else
+                        {
+                            _r.AppendLine("- Ok: " + dep.FullName, Brushes.Green);
+                        }
+                    }
+                }
+                _r.AppendLine("Completed.");
             }
         }
     }

@@ -4,7 +4,7 @@
         Title="MainWindow" Height="350" Width="525">
     <Grid>
         <Button Content="Find dependency inconsistencies in Nuspec." Margin="90,38,10.4,0" VerticalAlignment="Top" Click="ButtonBase_OnClick" />
-        <RichTextBox VerticalScrollBarVisibility="Auto" x:Name="Report" Margin="10,92,10.4,36.8" Background="LightYellow" >
+        <RichTextBox VerticalScrollBarVisibility="Auto" x:Name="Report" Margin="10,121,10,37" Background="LightYellow" >
             <RichTextBox.Resources>
                 <Style TargetType="{x:Type Paragraph}">
                     <Setter Property="Margin" Value="0"/>
@@ -17,5 +17,6 @@
         <Button Content="List clr version." Margin="8,0,0,10" Click="ListClr" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="109" />
         <Button Content="Find dll Conflict" Margin="124,0,0,9.8" Click="FindConflict" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="109" />
         <Button x:Name="RemovePackageButton" IsEnabled="False" Content="Remove Unused Packages" Margin="238,0,0,9.8" Click="RemoveUnused" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="152" />
+        <Button Content="Test against Nuget.Org" Margin="90,92,10,0" VerticalAlignment="Top" Click="TestNugetOrg" />
     </Grid>
 </Window>
