@@ -180,15 +180,27 @@ namespace NuSpecHelper
 
                 foreach (var nuspec in allNuSpecs)
                 {
-                    _r.AppendLine("Testing " + nuspec.Identity.FullName);
+                    _r.AppendLine("=== Testing " + nuspec.Identity.FullName);
                     foreach (var dep in nuspec.AllDependencies)
                     {
-                        var depFnd = repo.FindPackage(dep.Id, SemanticVersion.Parse(dep.Version));
+                        var sv = SemanticVersion.Parse(dep.Version);
+                        var depFnd = repo.FindPackage(dep.Id, sv);
                         if (depFnd == null)
                             _r.AppendLine("- Error: " + dep.FullName, Brushes.Red);
                         else
                         {
-                            _r.AppendLine("- Ok: " + dep.FullName, Brushes.Green);
+                            IVersionSpec vsp = new VersionSpec() {
+                                MinVersion  =  sv, 
+                                IsMinInclusive = false
+                                };
+                            var verFnd = repo.FindPackage(dep.Id, vsp, false, false);
+                            if (verFnd != null)
+                                _r.AppendLine("- Update available: " + dep.Id + " (" + dep.Version + " => " + verFnd.Version + ")" , Brushes.OrangeRed);
+                            else
+                                _r.AppendLine("- Ok: " + dep.FullName, Brushes.Green);
+
+                            
+
                         }
                     }
                 }
