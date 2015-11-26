@@ -180,7 +180,7 @@ namespace NuSpecHelper
 
                 foreach (var nuspec in allNuSpecs)
                 {
-                    _r.AppendLine("=== Testing " + nuspec.Identity.FullName);
+                    _r.AppendLine("=== Testing " + nuspec.Identity.FullName, Brushes.Blue);
                     foreach (var dep in nuspec.AllDependencies)
                     {
                         var sv = SemanticVersion.Parse(dep.Version);
@@ -198,9 +198,6 @@ namespace NuSpecHelper
                                 _r.AppendLine("- Update available: " + dep.Id + " (" + dep.Version + " => " + verFnd.Version + ")" , Brushes.OrangeRed);
                             else
                                 _r.AppendLine("- Ok: " + dep.FullName, Brushes.Green);
-
-                            
-
                         }
                     }
                 }
