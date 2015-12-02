@@ -36,12 +36,44 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>packages\ngit2.2.1.0.20130924\lib\net40\ICSharpCode.SharpZipLib.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Web.XmlTransform, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Web.Xdt.2.1.1\lib\net40\Microsoft.Web.XmlTransform.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Mono.Posix, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>packages\ngit2.2.1.0.20130924\lib\net40\Mono.Posix.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Mono.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>packages\ngit2.2.1.0.20130924\lib\net40\Mono.Security.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Mono.Security.Win32, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>packages\ngit2.2.1.0.20130924\lib\net40\Mono.Security.Win32.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NGit, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\ngit2.2.1.0.20130924\lib\net40\NGit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NSch, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\ngit2.2.1.0.20130924\lib\net40\NSch.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="NuGet.Core, Version=2.9.0.729, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>packages\NuGet.Core.2.9.0\lib\net40-Client\NuGet.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Sharpen, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\ngit2.2.1.0.20130924\lib\net40\Sharpen.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Sharpen.Unix, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\ngit2.2.1.0.20130924\lib\net40\Sharpen.Unix.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

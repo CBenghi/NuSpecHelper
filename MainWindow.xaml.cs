@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -180,6 +181,23 @@ namespace NuSpecHelper
 
                 foreach (var nuspec in allNuSpecs)
                 {
+                    // only test master
+                    var branch = "NoBranch";
+                    try
+                    {
+                        var repository = NGit.Api.Git.Open(nuspec.SpecFile.DirectoryName);
+                        branch = repository.GetRepository().GetBranch();
+                    }
+                    catch (Exception exo)
+                    {
+                        Debug.Print(exo.Message);
+                    }
+
+                    
+                    if (branch != "master")
+                        continue;
+
+                    // actual test.
                     _r.AppendLine("=== Testing " + nuspec.Identity.FullName, Brushes.Blue);
                     foreach (var dep in nuspec.AllDependencies)
                     {
