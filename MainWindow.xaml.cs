@@ -156,7 +156,7 @@ namespace NuSpecHelper
                 {
                     if (nureq.OldPackages().Any())
                     {
-                        _r.AppendLine("Cleaning " + nureq.Identity.FullName);
+                        _r.AppendLine("Cleaning " + nureq.Identity.FullName, Brushes.Blue);
                     }
                     foreach (var oldpackage in nureq.OldPackages())
                     {
