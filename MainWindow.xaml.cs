@@ -37,8 +37,6 @@ namespace NuSpecHelper
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            
-            
             using (new WaitCursor())
             {
                 RemovePackageButton.IsEnabled = false;
@@ -50,7 +48,7 @@ namespace NuSpecHelper
                     if (nureq.OldPackages().Any())
                         RemovePackageButton.IsEnabled = true;
                 }
-                _r.AppendLine("Completed.");
+                _r.AppendLine("Completed.");             
             }
         }
 
@@ -79,6 +77,7 @@ namespace NuSpecHelper
             }
         }
         
+
         private void FindUpdate(object sender, RoutedEventArgs e)
         {
             using (new WaitCursor())

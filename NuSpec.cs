@@ -1,11 +1,10 @@
-﻿using System;
+﻿using NuGet;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace NuSpecHelper
@@ -29,9 +28,9 @@ namespace NuSpecHelper
             
         }
         
-        public NuSpec(FileInfo fonnd)
+        public NuSpec(FileInfo fileinfo)
         {
-            SpecFile = fonnd;
+            SpecFile = fileinfo;
         }
         
         private List<PackageIdentity> _dependencies;
@@ -95,6 +94,26 @@ namespace NuSpecHelper
 
         private void Init()
         {
+            if (false)
+            {
+                using (var r = SpecFile.OpenRead())
+                {
+                    var man = Manifest.ReadFrom(r, false);
+                    var dep = man.Metadata.DependencySets.FirstOrDefault().Dependencies;
+                    foreach (var item in dep)
+                    {
+
+
+
+
+                        //VersionSpec
+                        //var v = new VersionSpec();
+                        //SemanticVersion.TryParse()
+                    }
+
+                }
+            }  
+
             _dependencies = new List<PackageIdentity>();
             using (var sr = SpecFile.OpenText())
             {
@@ -144,14 +163,38 @@ namespace NuSpecHelper
             foreach (var dep in Dependencies)
             {
                 reporter.AppendLine(@"  - " + dep.Id + " " + dep.Version);
+
+                semver.tools.IVersionSpec Iver;
+                semver.tools.VersionSpec.TryParseNuGet(dep.Version, out Iver);
+
+                var ver = (semver.tools.VersionSpec)Iver;
+                
                 foreach (var project in Projects)
                 {
                     var rp = project.RequiredPackages.FirstOrDefault(p => p.Id == dep.Id);
                     if (rp == null)
                         continue;
-                    if (string.Compare(rp.Version, dep.Version, StringComparison.CurrentCulture) != 0)
+
+                    try
                     {
-                        reporter.AppendLine(string.Format("    - Mismatch: {0} referenced in {1}", rp.Version, project.ConfigFile.Directory.Name), Brushes.OrangeRed);
+                        var sv = semver.tools.SemanticVersion.Parse(rp.Version);
+                        var sat = ver.Satisfies(sv);
+                        if (!ver.Satisfies(sv))
+                        {
+                            reporter.AppendLine(string.Format("    - Mismatch: {0} referenced in {1}", rp.Version, project.ConfigFile.Directory.Name), Brushes.OrangeRed);
+                        }
+                        else if (string.Compare(rp.Version, ver.MinVersion.ToString(), StringComparison.CurrentCulture) != 0)
+                        {
+                            reporter.AppendLine(string.Format("    - Warning: MinVersion {0} is lower than installed {1} in {2}", ver.MinVersion.ToString(), rp.Version, project.ConfigFile.Directory.Name), Brushes.Orange);
+                        }
+                        
+                    }
+                    catch (Exception)
+                    {
+                        if (string.Compare(rp.Version, dep.Version, StringComparison.CurrentCulture) != 0)
+                        {
+                            reporter.AppendLine(string.Format("    - Mismatch: {0} referenced in {1}", rp.Version, project.ConfigFile.Directory.Name), Brushes.OrangeRed);
+                        }
                     }
                 }
             }
@@ -285,6 +328,5 @@ namespace NuSpecHelper
             // already deleted, so we just delete the empty folder
             Directory.Delete(path);
         }
-
     }
 }
