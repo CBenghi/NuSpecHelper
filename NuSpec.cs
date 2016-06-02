@@ -96,22 +96,22 @@ namespace NuSpecHelper
         {
             if (false)
             {
-                using (var r = SpecFile.OpenRead())
-                {
-                    var man = Manifest.ReadFrom(r, false);
-                    var dep = man.Metadata.DependencySets.FirstOrDefault().Dependencies;
-                    foreach (var item in dep)
-                    {
+                //using (var r = SpecFile.OpenRead())
+                //{
+                //    var man = Manifest.ReadFrom(r, false);
+                //    var dep = man.Metadata.DependencySets.FirstOrDefault().Dependencies;
+                //    foreach (var item in dep)
+                //    {
 
 
 
 
-                        //VersionSpec
-                        //var v = new VersionSpec();
-                        //SemanticVersion.TryParse()
-                    }
+                //        //VersionSpec
+                //        //var v = new VersionSpec();
+                //        //SemanticVersion.TryParse()
+                //    }
 
-                }
+                //}
             }  
 
             _dependencies = new List<PackageIdentity>();

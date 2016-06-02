@@ -168,20 +168,21 @@ namespace NuSpecHelper
             }
         }
 
-        private void TestNugetOrg(object sender, RoutedEventArgs e)
+        private void FindOnlineUpdatables(object sender, RoutedEventArgs e)
         {
+            if (SetupNewReport())
+                return;
             using (new WaitCursor())
             {
-                var repo = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2");
+                
                 // var packages = repo.Search("BuildingSmart", false).ToList();
-                if (SetupNewReport())
-                    return;
+                
                 var allNuSpecs = GetNuSpecs(new DirectoryInfo(Folder.Text)).ToList();
 
                 foreach (var nuspec in allNuSpecs)
                 {
-                    // only test master
-                    var branch = "NoBranch";
+                    const string noBranchName = "NoBranch";
+                    var branch = noBranchName;
                     try
                     {
                         var repository = NGit.Api.Git.Open(nuspec.SpecFile.DirectoryName);
@@ -192,9 +193,11 @@ namespace NuSpecHelper
                         Debug.Print(exo.Message);
                     }
 
-                    
-                    if (branch != "master")
+                    // only test if branch is specificed
+                    if (branch == noBranchName)
                         continue;
+
+                    var repo =  _repos. GetRepo(branch);
 
                     // actual test.
                     _r.AppendLine("=== Testing " + nuspec.Identity.FullName, Brushes.Blue);
@@ -213,6 +216,65 @@ namespace NuSpecHelper
                             var verFnd = repo.FindPackage(dep.Id, vsp, false, false);
                             if (verFnd != null)
                                 _r.AppendLine("- Update available: " + dep.Id + " (" + dep.Version + " => " + verFnd.Version + ")" , Brushes.OrangeRed);
+                            else
+                                _r.AppendLine("- Ok: " + dep.FullName, Brushes.Green);
+                        }
+                    }
+                }
+                _r.AppendLine("Completed.");
+            }
+        }
+
+        private HierarchicalRepo _repos = new HierarchicalRepo();
+
+        private void ListRequired(object sender, RoutedEventArgs e)
+        {
+            if (SetupNewReport())
+                return;
+            using (new WaitCursor())
+            {
+                var allNuSpecs = GetNuSpecs(new DirectoryInfo(Folder.Text)).ToList();
+
+                foreach (var nuspec in allNuSpecs)
+                {
+                    const string noBranchName = "NoBranch";
+                    var branch = noBranchName;
+                    try
+                    {
+                        var repository = NGit.Api.Git.Open(nuspec.SpecFile.DirectoryName);
+                        branch = repository.GetRepository().GetBranch();
+                    }
+                    catch (Exception exo)
+                    {
+                        Debug.Print(exo.Message);
+                    }
+
+                    // only test if branch is specificed
+                    if (branch == noBranchName)
+                        continue;
+
+                    var repo = _repos.GetRepo(branch);
+
+                    // actual test.
+                    _r.AppendLine("=== Testing " + nuspec.Identity.FullName + " on " + branch, Brushes.Blue);
+                    foreach (var dep in nuspec.AllDependencies)
+                    {
+                        if (!dep.Id.StartsWith("Xbim."))
+                            continue;
+                        var sv = SemanticVersion.Parse(dep.Version);
+                        var depFnd = repo.FindPackage(dep.Id, sv);
+                        if (depFnd == null)
+                            _r.AppendLine("- Missing: " + dep.FullName, Brushes.Red);
+                        else
+                        {
+                            IVersionSpec vsp = new VersionSpec()
+                            {
+                                MinVersion = sv,
+                                IsMinInclusive = false
+                            };
+                            var verFnd = repo.FindPackage(dep.Id, vsp, false, false);
+                            if (verFnd != null)
+                                _r.AppendLine("- Update available: " + dep.Id + " (" + dep.Version + " => " + verFnd.Version + ")", Brushes.OrangeRed);
                             else
                                 _r.AppendLine("- Ok: " + dep.FullName, Brushes.Green);
                         }

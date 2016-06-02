@@ -106,6 +106,7 @@
     <Compile Include="CsProj.cs" />
     <Compile Include="FileFinder.cs" />
     <Compile Include="FindConflictingReferences.cs" />
+    <Compile Include="HierarchicalRepo.cs" />
     <Compile Include="IReporter.cs" />
     <Compile Include="PackageIdentity.cs" />
     <Compile Include="ProjectPackages.cs" />
