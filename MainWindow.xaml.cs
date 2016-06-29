@@ -76,7 +76,6 @@ namespace NuSpecHelper
                 yield return subFound;
             }
         }
-        
 
         private void FindUpdate(object sender, RoutedEventArgs e)
         {
@@ -117,6 +116,47 @@ namespace NuSpecHelper
             }
         }
 
+        private readonly Dictionary<string, string> _xbimVersions = new Dictionary<string, string>();
+        private void ListXbimAssemblyVersions(object sender, RoutedEventArgs e)
+        {
+            using (new WaitCursor())
+            {
+                var ff = new FileFinder { Pattern = @"\.(dll|exe)$" };
+                foreach (var fl in ff.Files(new DirectoryInfo(Folder.Text)))
+                {
+                    if (_xbimVersions.ContainsKey(fl.Name))
+                    {
+                        _r.AppendLine(fl + " (prev loaded):" + _xbimVersions[fl.Name]);
+                    }
+                    else
+                    {
+                        var v = XbimVNumber(fl.FullName);
+                        _xbimVersions.Add(fl.Name, v);
+                        _r.AppendLine(fl + " " + v);
+                    }
+                }
+            }
+        }
+
+        private static string XbimVNumber(string fileName)
+        {
+            try
+            {
+                var asbly = Assembly.LoadFrom(fileName);
+                var xa = new XbimAssemblyInfo(asbly);
+                var version = string.Format("\t{0}\t{1}\t{2}",
+                    xa.AssemblyVersion,
+                    xa.FileVersion,
+                    xa.CompilationTime
+                    );
+                return version;
+            }
+            catch (Exception)
+            {
+                return "Not a Net Assembly.";
+            }
+        }
+
         private static string ClrVNumber(string fileName)
         {
             try
@@ -139,6 +179,7 @@ namespace NuSpecHelper
                 return "Not a Net Assembly.";
             }
         }
+
 
         private void FindConflict(object sender, RoutedEventArgs e)
         {

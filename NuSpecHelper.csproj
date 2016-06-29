@@ -113,6 +113,7 @@
     <Compile Include="Repository.cs" />
     <Compile Include="RichTextBoxReporter.cs" />
     <Compile Include="WaitCursor.cs" />
+    <Compile Include="XbimAssemblyInfo.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

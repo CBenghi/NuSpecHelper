@@ -35,6 +35,7 @@
                 <Grid Background="#FFE5E5E5">
                     <Button Content="List clr version." Click="ListClr" Margin="10,10,10,0" Height="22" VerticalAlignment="Top" />
                     <Button Content="Find dll Conflict" Click="FindConflict" Margin="10,37,10,0" Height="22" VerticalAlignment="Top" />
+                    <Button Content="List Xbim Version." Click="ListXbimAssemblyVersions" Margin="10,64,10,0" Height="22" VerticalAlignment="Top" />
                 </Grid>
             </TabItem>
 
