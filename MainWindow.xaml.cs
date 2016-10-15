@@ -59,9 +59,13 @@ namespace NuSpecHelper
                 _r.AppendLine(@"Folder not found.");
                 return true;
             }
+
+            Report.Document = new FlowDocument();
+
+            if (!chkSaveConfig.IsChecked.Value)
+                return false;
             Settings.Default.SearchFolder = Folder.Text;
             Settings.Default.Save();
-            Report.Document = new FlowDocument();
             return false;
         }
 

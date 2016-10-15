@@ -3,14 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="675.4" Width="525">
     <Grid>
-        <RichTextBox VerticalScrollBarVisibility="Auto" x:Name="Report" Margin="10,183,10.4,9.8" Background="LightYellow" >
+        <RichTextBox VerticalScrollBarVisibility="Auto" x:Name="Report" Margin="10,188,10.429,9.857" Background="LightYellow" >
             <RichTextBox.Resources>
                 <Style TargetType="{x:Type Paragraph}">
                     <Setter Property="Margin" Value="0"/>
                 </Style>
             </RichTextBox.Resources>
         </RichTextBox>
-        <TabControl Height="168" Margin="10,10,10.4,0" VerticalAlignment="Top">
+        <TabControl Height="173" Margin="10,10,10.429,0" VerticalAlignment="Top">
             <TabItem Header="Local">
                 <Grid Background="#FFE5E5E5">
                     <Button Content="Find dependency inconsistencies in Nuspec." Margin="85,47,10,0" VerticalAlignment="Top" Click="ButtonBase_OnClick" />
@@ -18,6 +18,7 @@
                     <TextBox x:Name="Folder" Height="23" Margin="85,14,10,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top"/>
                     <Label Content="Folder:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75"/>
                     <Button x:Name="RemovePackageButton" IsEnabled="False" Content="Remove Unused Packages" Margin="85,95,10,0" Click="RemoveUnused" Height="22" VerticalAlignment="Top" />
+                    <CheckBox x:Name="chkSaveConfig" Content="Save path config" HorizontalAlignment="Left" Margin="85,122,0,0" VerticalAlignment="Top" IsChecked="True"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Repos">
