@@ -73,10 +73,8 @@ namespace NuSpecHelper
                 }
             }
         }
-
-
-
-        static internal IEnumerable<ProjectPackages> GetFromDir(DirectoryInfo dir)
+       
+        internal static IEnumerable<ProjectPackages> GetFromDir(DirectoryInfo dir)
         {
             foreach (var found in dir.GetFiles(@"*packages.config"))
             {
@@ -91,6 +89,5 @@ namespace NuSpecHelper
                 yield return subFound;
             }
         }
-
     }
 }

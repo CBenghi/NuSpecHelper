@@ -23,13 +23,18 @@
             </TabItem>
             <TabItem Header="Repos">
                 <Grid Background="#FFE5E5E5">
-                    <Button Content="Find online updatable" VerticalAlignment="Top" Click="FindOnlineUpdatables" Margin="10,37,10,0" />
-                    <ComboBox x:Name="CmbSelectedRepo" SelectedIndex="0" Margin="10,10,10,0" VerticalAlignment="Top">
+                    <Button Content="Find packages from xbim-master missing on nuget" VerticalAlignment="Top" Click="FindMissingOnNuget" Margin="10,10,10,0" />
+                    <Button Content="Find develop dependencies missing on nuget" VerticalAlignment="Top" Click="FindDevelopMissingOnNuget" Margin="10,36,10.143,0" />
+                    <ComboBox x:Name="CmbSelectedRepo" SelectedIndex="0" Margin="10,62,10.143,0" VerticalAlignment="Top">
                         <ListBoxItem Content="develop"/>
                         <ListBoxItem Content="master"/>
                         <ListBoxItem Content="nuget"/>
                     </ComboBox>
-                    <Button Content="List required online packages" VerticalAlignment="Top" Click="ListRequired" Margin="10,61,10,0" />
+                    <Button Content="Find updatables online " VerticalAlignment="Top" Click="FindOnlineUpdatables" Margin="10,92,10.143,0" />
+                    <Button Content="List required online packages" VerticalAlignment="Top" Click="ListRequired" Margin="10,117,10.143,0" />
+                    
+
+
                 </Grid>
             </TabItem>
             <TabItem Header="Extras">

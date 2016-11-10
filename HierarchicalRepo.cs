@@ -24,9 +24,7 @@ namespace NuSpecHelper
             _repos[repoId] = repo;
             return repo;
         }
-
-       
-
+        
         private static int GetIndex(string branch)
         {
             switch (branch)

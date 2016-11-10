@@ -62,6 +62,7 @@ namespace NuSpecHelper
 
             Report.Document = new FlowDocument();
 
+            // ReSharper disable once PossibleInvalidOperationException
             if (!chkSaveConfig.IsChecked.Value)
                 return false;
             Settings.Default.SearchFolder = Folder.Text;
@@ -69,11 +70,11 @@ namespace NuSpecHelper
             return false;
         }
 
-        private static IEnumerable<NuSpec> GetNuSpecs(DirectoryInfo directoryInfo)
+        private static IEnumerable<OurOwnNuSpec> GetNuSpecs(DirectoryInfo directoryInfo)
         {
             foreach (var fonnd in directoryInfo.GetFiles(@"*.nuspec"))
             {
-                yield return new NuSpec(fonnd);
+                yield return new OurOwnNuSpec(fonnd);
             }
             foreach (var subFound in directoryInfo.EnumerateDirectories().SelectMany(GetNuSpecs))
             {
@@ -270,7 +271,9 @@ namespace NuSpecHelper
             }
         }
 
-        private HierarchicalRepo _repos = new HierarchicalRepo();
+        private readonly HierarchicalRepo _repos = new HierarchicalRepo();
+
+        const string NoBranchName = "NoBranch";
 
         private void ListRequired(object sender, RoutedEventArgs e)
         {
@@ -282,8 +285,7 @@ namespace NuSpecHelper
 
                 foreach (var nuspec in allNuSpecs)
                 {
-                    const string noBranchName = "NoBranch";
-                    var branch = noBranchName;
+                    var branch = NoBranchName;
                     try
                     {
                         var repository = NGit.Api.Git.Open(nuspec.SpecFile.DirectoryName);
@@ -295,7 +297,7 @@ namespace NuSpecHelper
                     }
 
                     // only test if branch is specificed
-                    if (branch == noBranchName)
+                    if (branch == NoBranchName)
                         continue;
 
                     var repo = _repos.GetRepo(branch);
@@ -326,6 +328,90 @@ namespace NuSpecHelper
                     }
                 }
                 _r.AppendLine("Completed.");
+            }
+        }
+
+        private void FindMissingOnNuget(object sender, RoutedEventArgs e)
+        {
+            var nugetRepo = _repos.GetRepo();
+            var masterRepo = _repos.GetRepo("master");
+            using (new WaitCursor())
+            {
+                if (SetupNewReport())
+                    return;
+                foreach (var nureq in GetNuSpecs(new DirectoryInfo(Folder.Text)))
+                {
+                    _r.AppendLine("=== Testing " + nureq.Identity.Id, Brushes.Blue);
+                    var onMaster = masterRepo.FindPackagesById(nureq.Identity.Id);
+                    var anyproblems = false;
+                    foreach (var masterPackage in onMaster)
+                    {
+                        if (!masterPackage.IsReleaseVersion())
+                        {
+                            continue;
+                        }
+                        var ret = nugetRepo.FindPackage(masterPackage.Id, masterPackage.Version);
+                        if (ret == null)
+                        {
+                            _r.AppendLine($"- {masterPackage.Version} missing ", Brushes.Red);
+                            anyproblems = true;
+                        }
+                        else
+                        {
+                            _r.AppendLine($"- {masterPackage.Version} ok ", Brushes.Green);
+                        }
+                    }
+                    if (!anyproblems)
+                    {
+                        // _r.AppendLine("- All Ok: ", Brushes.Green);
+                    }
+                }
+            }
+        }
+
+        private void FindDevelopMissingOnNuget(object sender, RoutedEventArgs e)
+        {
+            if (SetupNewReport())
+                return;
+            using (new WaitCursor())
+            {
+                var nugetRepo = _repos.GetRepo();
+                var allNuSpecs = GetNuSpecs(new DirectoryInfo(Folder.Text)).ToList();
+
+                foreach (var nuspec in allNuSpecs)
+                {
+                    var branch = NoBranchName;
+                    try
+                    {
+                        var repository = NGit.Api.Git.Open(nuspec.SpecFile.DirectoryName);
+                        branch = repository.GetRepository().GetBranch();
+                    }
+                    catch (Exception exo)
+                    {
+                        Debug.Print(exo.Message);
+                    }
+                    //// only test if branch is develop
+                    //if (branch != "develop")
+                    //{
+                    //    continue;
+                    //}
+                    _r.AppendLine("=== Testing " + nuspec.Identity.Id, Brushes.Blue);
+
+                    foreach (var masterPackage in nuspec.Dependencies)
+                    {
+                        if (!masterPackage.Id.ToLowerInvariant().Contains("xbim"))
+                            continue;
+                        var ret = nugetRepo.FindPackage(masterPackage.Id, masterPackage.GetMinSemantic());
+                        if (ret == null)
+                        {
+                            _r.AppendLine($"- {masterPackage.Id}.{masterPackage.Version} missing ", Brushes.Red);
+                        }
+                        else
+                        {
+                            _r.AppendLine($"- {masterPackage.Id}.{masterPackage.Version} ok ", Brushes.Green);
+                        }
+                    }
+                }
             }
         }
     }

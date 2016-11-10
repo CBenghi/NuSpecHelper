@@ -9,7 +9,7 @@ using System.Windows.Media;
 
 namespace NuSpecHelper
 {
-    class NuSpec
+    internal class OurOwnNuSpec
     {
         internal FileInfo SpecFile;
 
@@ -25,10 +25,9 @@ namespace NuSpecHelper
                 }
                 return _identity;
             }
-            
         }
         
-        public NuSpec(FileInfo fileinfo)
+        public OurOwnNuSpec(FileInfo fileinfo)
         {
             SpecFile = fileinfo;
         }
@@ -102,15 +101,10 @@ namespace NuSpecHelper
                 //    var dep = man.Metadata.DependencySets.FirstOrDefault().Dependencies;
                 //    foreach (var item in dep)
                 //    {
-
-
-
-
                 //        //VersionSpec
                 //        //var v = new VersionSpec();
                 //        //SemanticVersion.TryParse()
                 //    }
-
                 //}
             }  
 
@@ -118,7 +112,7 @@ namespace NuSpecHelper
             using (var sr = SpecFile.OpenText())
             {
                 var content = sr.ReadToEnd();
-                const string pattern = @"<dependency id=""(?<Name>.*)"" version=""(?<Version>.*)"" />";
+                const string pattern = @"<dependency *id=""(?<Name>.*)"" *version=""(?<Version>.*)"" */>";
                 const RegexOptions regexOptions = RegexOptions.None;
                 var regex = new Regex(pattern, regexOptions);
                 foreach (Match mtch in regex.Matches(content))
@@ -138,9 +132,7 @@ namespace NuSpecHelper
             }
             _projects = ProjectPackages.GetFromDir(SpecFile.Directory).ToList();
         }
-
-
-
+        
         private string getXML(string parameter, string searchXml)
         {
             var pattern = string.Format(@"<{0}>(.+)</{0}>", parameter);
@@ -200,7 +192,7 @@ namespace NuSpecHelper
             }
         }
 
-        internal void ReportArrear(List<NuSpec> allNuSpecs, IReporter reporter)
+        internal void ReportArrear(List<OurOwnNuSpec> allNuSpecs, IReporter reporter)
         {
             var lst = allNuSpecs.Where(x => x.Identity == null).ToArray();
             foreach (var l in lst)
