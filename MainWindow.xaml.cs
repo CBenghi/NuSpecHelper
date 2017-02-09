@@ -369,7 +369,7 @@ namespace NuSpecHelper
             }
         }
 
-        private void FindDevelopMissingOnNuget(object sender, RoutedEventArgs e)
+        private void FindProjectDependenciesMissingOnNuget(object sender, RoutedEventArgs e)
         {
             if (SetupNewReport())
                 return;
@@ -395,13 +395,15 @@ namespace NuSpecHelper
                     //{
                     //    continue;
                     //}
-                    _r.AppendLine("=== Testing " + nuspec.Identity.Id, Brushes.Blue);
+                    _r.AppendLine($"=== Testing {nuspec.Identity.Id} on branch '{branch}'" , Brushes.Blue);
 
                     foreach (var masterPackage in nuspec.Dependencies)
                     {
-                        if (!masterPackage.Id.ToLowerInvariant().Contains("xbim"))
-                            continue;
-                        var ret = nugetRepo.FindPackage(masterPackage.Id, masterPackage.GetMinSemantic());
+                        var sem = masterPackage.GetMinSemantic();
+                        //// only tests for non-special versions
+                        //if (!string.IsNullOrEmpty(sem.SpecialVersion))
+                        //    continue;
+                        var ret = nugetRepo.FindPackage(masterPackage.Id, sem);
                         if (ret == null)
                         {
                             _r.AppendLine($"- {masterPackage.Id}.{masterPackage.Version} missing ", Brushes.Red);
@@ -412,6 +414,27 @@ namespace NuSpecHelper
                         }
                     }
                 }
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (SetupNewReport())
+                return;
+
+            var v = SemanticVersion.Parse(TxtVersion.Text);
+            Debug.WriteLine(v);
+
+            using (new WaitCursor())
+            {
+                var nugetRepo = _repos.GetRepo();
+
+                semver.tools.IVersionSpec Iver;
+                semver.tools.VersionSpec.TryParseNuGet(TxtVersion.Text, out Iver);
+
+                // nugetRepo.FindPackages("", new VersionSpec. , true, true);
+
+
             }
         }
     }

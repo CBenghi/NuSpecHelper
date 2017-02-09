@@ -24,7 +24,7 @@
             <TabItem Header="Repos">
                 <Grid Background="#FFE5E5E5">
                     <Button Content="Find packages from xbim-master missing on nuget" VerticalAlignment="Top" Click="FindMissingOnNuget" Margin="10,10,10,0" />
-                    <Button Content="Find develop dependencies missing on nuget" VerticalAlignment="Top" Click="FindDevelopMissingOnNuget" Margin="10,36,10.143,0" />
+                    <Button Content="Find project dependencies missing on nuget" VerticalAlignment="Top" Click="FindProjectDependenciesMissingOnNuget" Margin="10,36,10.143,0" />
                     <ComboBox x:Name="CmbSelectedRepo" SelectedIndex="0" Margin="10,62,10.143,0" VerticalAlignment="Top">
                         <ListBoxItem Content="develop"/>
                         <ListBoxItem Content="master"/>
@@ -32,7 +32,7 @@
                     </ComboBox>
                     <Button Content="Find updatables online " VerticalAlignment="Top" Click="FindOnlineUpdatables" Margin="10,92,10.143,0" />
                     <Button Content="List required online packages" VerticalAlignment="Top" Click="ListRequired" Margin="10,117,10.143,0" />
-                    
+
 
 
                 </Grid>
@@ -42,9 +42,23 @@
                     <Button Content="List clr version." Click="ListClr" Margin="10,10,10,0" Height="22" VerticalAlignment="Top" />
                     <Button Content="Find dll Conflict" Click="FindConflict" Margin="10,37,10,0" Height="22" VerticalAlignment="Top" />
                     <Button Content="List Xbim Version." Click="ListXbimAssemblyVersions" Margin="10,64,10,0" Height="22" VerticalAlignment="Top" />
+
                 </Grid>
             </TabItem>
+            <TabItem Header="Latest">
+                <Grid Background="#FFE5E5E5">
+                    <GroupBox Header="Find latest valid" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="106" Width="473">
+                        <Grid>
+                            <Label Margin="10,10,0,48.429" Height="25" Width="100" HorizontalAlignment="Left">Package</Label>
+                            <TextBox x:Name="TxtPackage" Height="23" Width="120" HorizontalAlignment="Left" Margin="110,14,0,0" TextWrapping="Wrap" Text="Xbim.Essentials" VerticalAlignment="Top" />
+                            <Label Margin="10,40,351.714,18.429" Height="25" Width="100">Version range</Label>
+                            <TextBox x:Name="TxtVersion" HorizontalAlignment="Left" Height="23" Margin="110,44,0,0" TextWrapping="Wrap" Text="[3.1.1,4.0.0)" VerticalAlignment="Top" Width="120"/>
+                            <Button Margin="235,14,26.714,16.429" Click="Button_Click">Find</Button>
+                        </Grid>
+                    </GroupBox>
 
+                </Grid>
+            </TabItem>
         </TabControl>
 
 
