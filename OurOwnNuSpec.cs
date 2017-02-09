@@ -47,12 +47,10 @@ namespace NuSpecHelper
         {
             get
             {
-                if (_dependencies == null)
-                    Init();
-                foreach (var VARIABLE in _dependencies)
+                foreach (var dependency in Dependencies)
                 {
-                    yield return VARIABLE;
-                    foreach (var v2 in Repository.GetAllDependecies(VARIABLE.Id))
+                    yield return dependency;
+                    foreach (var v2 in Repository.GetAllDependecies(dependency.Id))
                     {
                         yield return v2;
                     }
@@ -173,11 +171,13 @@ namespace NuSpecHelper
                         var sat = ver.Satisfies(sv);
                         if (!ver.Satisfies(sv))
                         {
-                            reporter.AppendLine(string.Format("    - Mismatch: {0} referenced in {1}", rp.Version, project.ConfigFile.Directory.Name), Brushes.OrangeRed);
+                            reporter.AppendLine(
+                                $"    - Mismatch: {rp.Version} referenced in {project.ConfigFile.Directory.Name}/{project.ConfigFile.Name}", Brushes.OrangeRed);
                         }
                         else if (string.Compare(rp.Version, ver.MinVersion.ToString(), StringComparison.CurrentCulture) != 0)
                         {
-                            reporter.AppendLine(string.Format("    - Warning: MinVersion {0} is lower than installed {1} in {2}", ver.MinVersion.ToString(), rp.Version, project.ConfigFile.Directory.Name), Brushes.Orange);
+                            reporter.AppendLine(
+                                $"    - Warning: MinVersion {ver.MinVersion.ToString()} is lower than installed {rp.Version} in {project.ConfigFile.Directory.Name}/{project.ConfigFile.Name}", Brushes.Orange);
                         }
                         
                     }
@@ -185,7 +185,8 @@ namespace NuSpecHelper
                     {
                         if (string.Compare(rp.Version, dep.Version, StringComparison.CurrentCulture) != 0)
                         {
-                            reporter.AppendLine(string.Format("    - Mismatch: {0} referenced in {1}", rp.Version, project.ConfigFile.Directory.Name), Brushes.OrangeRed);
+                            reporter.AppendLine(
+                                $"    - Mismatch: {rp.Version} referenced in {project.ConfigFile.Directory.Name}/{project.ConfigFile.Name}", Brushes.OrangeRed);
                         }
                     }
                 }
@@ -204,7 +205,7 @@ namespace NuSpecHelper
                 return;
 
             reporter.AppendLine(@"===" + SpecFile.FullName, Brushes.Blue);
-            reporter.AppendLine(string.Format("[{0}, {1}]", Identity.Id, Identity.Version));
+            reporter.AppendLine($"[{Identity.Id}, {Identity.Version}]");
             foreach (var dep in Dependencies)
             {
                 var depName = dep.Id;
@@ -220,7 +221,7 @@ namespace NuSpecHelper
                     ? Brushes.OrangeRed
                     : null;
 
-                reporter.AppendLine(string.Format(" - {0}: req: {1} avail: {2}", depName, depReq, depRes), repColor);
+                reporter.AppendLine($" - {depName}: req: {depReq} avail: {depRes}", repColor);
             }
         }
 
@@ -228,9 +229,7 @@ namespace NuSpecHelper
         {
             get
             {
-                if (SpecFile == null || SpecFile.Directory == null)
-                    return null;
-                var dir = SpecFile.Directory.GetDirectories("packages").FirstOrDefault();
+                var dir = SpecFile?.Directory?.GetDirectories("packages").FirstOrDefault();
                 return dir;
             }
         }
