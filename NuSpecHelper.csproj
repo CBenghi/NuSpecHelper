@@ -56,6 +56,10 @@
       <HintPath>packages\ngit2.2.1.0.20130924\lib\net40\Mono.Security.Win32.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="NGit, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\ngit2.2.1.0.20130924\lib\net40\NGit.dll</HintPath>
       <Private>True</Private>
@@ -107,11 +111,13 @@
     <Compile Include="FileFinder.cs" />
     <Compile Include="FindConflictingReferences.cs" />
     <Compile Include="HierarchicalRepo.cs" />
+    <Compile Include="IpGeo.cs" />
     <Compile Include="IReporter.cs" />
     <Compile Include="PackageIdentity.cs" />
     <Compile Include="ProjectPackages.cs" />
     <Compile Include="Repository.cs" />
     <Compile Include="RichTextBoxReporter.cs" />
+    <Compile Include="StatItem.cs" />
     <Compile Include="WaitCursor.cs" />
     <Compile Include="XbimAssemblyInfo.cs" />
     <Page Include="MainWindow.xaml">

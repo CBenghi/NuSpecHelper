@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Runtime.Versioning;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
 using FindConflictingReference;
+using Newtonsoft.Json;
 using NuGet;
 using XbimPlugin.MvdXML.Viewing;
 using Settings = NuSpecHelper.Properties.Settings;
@@ -436,6 +439,104 @@ namespace NuSpecHelper
 
 
             }
+        }
+
+        private string ipCacheFileName
+        {
+            get
+            {
+                return Path.Combine(
+                    UsageDirectory().FullName,
+                    "geoCache.txt"
+                );
+            }
+        }
+
+        private Dictionary<string, StatItem> _geoDictionary;
+
+        private void Usage(object sender, RoutedEventArgs e)
+        {
+            if (_geoDictionary == null)
+                InitGeoDictionary();
+            Report.Document = new FlowDocument();
+            var d = UsageDirectory();
+            if (!d.Exists)
+            {
+                _r.AppendLine(@"Folder not found.");
+                return;
+            }
+            using (new WaitCursor())
+            using (var cwr = File.AppendText(ipCacheFileName))
+            using (var w = new WebClient())
+            {
+                foreach (var fName in d.GetFiles(@"*.log"))
+                {
+                    _r.AppendLine("=== Reporting " + fName, Brushes.Blue);
+                    using (var tr = File.OpenText(fName.FullName))
+                    {
+                        string line;
+                        while ((line = tr.ReadLine()) != null)
+                        {
+                            var arr = line.Split(new[] {'\t'}, StringSplitOptions.None);
+                            if (arr.Length != 3)
+                                continue;
+                            var ip = arr[1];
+                            var logTime = DateTime.ParseExact(arr[0], "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+
+                            if (!_geoDictionary.ContainsKey(ip))
+                            {
+                                var json_data = string.Empty;
+                                // attempt to download JSON data as a string
+                                var url = @"http://freegeoip.net/json/" + ip;
+                                json_data = w.DownloadString(url);
+                                if (string.IsNullOrEmpty(json_data))
+                                    continue;
+                                cwr.WriteLine(json_data.Replace(Environment.NewLine, ""));
+                                var deser = JsonConvert.DeserializeObject<IpGeo>(json_data);
+                                var s = new StatItem(deser);
+                                _geoDictionary.Add(ip, s);
+                            }
+                            _geoDictionary[ip].Launches.Add(logTime);
+                        }
+                        foreach (var stat in _geoDictionary.Values)
+                        {
+                            _r.AppendLine($"{stat.Ip.ip} {stat.Ip.country_name} {stat.Ip.city}", Brushes.Black);
+                            foreach (var statLaunch in stat.Launches)
+                            {
+                                _r.AppendLine($"\t{statLaunch.ToLongDateString()}");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void InitGeoDictionary()
+        {
+            _geoDictionary = new Dictionary<string, StatItem>();
+            using (var tr = File.OpenText(ipCacheFileName))
+            {
+                string line;
+                while ((line = tr.ReadLine()) != null)
+                {
+                    if (string.IsNullOrWhiteSpace(line))
+                    {
+                        continue;
+                    }
+                    var deser = JsonConvert.DeserializeObject<IpGeo>(line);
+                    var s = new StatItem(deser);
+                    _geoDictionary.Add(deser.ip, s);
+                }
+            }
+        }
+
+        private DirectoryInfo UsageDirectory()
+        {
+            var dbase = new DirectoryInfo(Folder.Text);
+            var fullpath = Path.Combine(dbase.FullName, UsageFolder.Text);
+
+            var d = new DirectoryInfo(fullpath);
+            return d;
         }
     }
 }

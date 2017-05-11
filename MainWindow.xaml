@@ -59,6 +59,18 @@
 
                 </Grid>
             </TabItem>
+            <TabItem Header="Usage">
+                <Grid Background="#FFE5E5E5">
+                    <GroupBox Header="Usage stats valid" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="106" Width="473">
+                        <Grid>
+                            <TextBox x:Name="UsageFolder" Height="23" Margin="85,14,10,0" TextWrapping="Wrap" Text="Squirrel.Windows\XplorerReleases" VerticalAlignment="Top"/>
+                            <Label Content="Folder:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75"/>
+                            <Button Margin="0,0,9.714,10.429" Click="Usage" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="199">Report</Button>
+                        </Grid>
+                    </GroupBox>
+
+                </Grid>
+            </TabItem>
         </TabControl>
 
 
