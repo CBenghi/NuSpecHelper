@@ -503,7 +503,7 @@ namespace NuSpecHelper
                             _r.AppendLine($"{stat.Ip.ip} {stat.Ip.country_name} {stat.Ip.city}", Brushes.Black);
                             foreach (var statLaunch in stat.Launches)
                             {
-                                _r.AppendLine($"\t{statLaunch.ToLongDateString()}");
+                                _r.AppendLine($"\t{statLaunch.ToShortDateString()} {statLaunch.ToShortTimeString()}");
                             }
                         }
                     }
