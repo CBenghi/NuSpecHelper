@@ -10,6 +10,7 @@ using System.Runtime.Versioning;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
+using DotSpatial.Projections;
 using FindConflictingReference;
 using Newtonsoft.Json;
 using NuGet;
@@ -456,9 +457,10 @@ namespace NuSpecHelper
 
         private void Usage(object sender, RoutedEventArgs e)
         {
+            Report.Document = new FlowDocument();
             if (_geoDictionary == null)
                 InitGeoDictionary();
-            Report.Document = new FlowDocument();
+            
             var d = UsageDirectory();
             if (!d.Exists)
             {
@@ -503,7 +505,7 @@ namespace NuSpecHelper
                             _r.AppendLine($"{stat.Ip.ip} {stat.Ip.country_name} {stat.Ip.city}", Brushes.Black);
                             foreach (var statLaunch in stat.Launches)
                             {
-                                _r.AppendLine($"\t{statLaunch.ToLongDateString()}");
+                                _r.AppendLine($"\t{statLaunch.ToLongDateString()} {statLaunch.ToShortTimeString()}");
                             }
                         }
                     }
@@ -517,15 +519,24 @@ namespace NuSpecHelper
             using (var tr = File.OpenText(ipCacheFileName))
             {
                 string line;
+                int iLineNumber = 0;
                 while ((line = tr.ReadLine()) != null)
                 {
+                    iLineNumber++;
                     if (string.IsNullOrWhiteSpace(line))
                     {
                         continue;
                     }
-                    var deser = JsonConvert.DeserializeObject<IpGeo>(line);
-                    var s = new StatItem(deser);
-                    _geoDictionary.Add(deser.ip, s);
+                    try
+                    {
+                        var deser = JsonConvert.DeserializeObject<IpGeo>(line);
+                        var s = new StatItem(deser);
+                        _geoDictionary.Add(deser.ip, s);
+                    }
+                    catch (Exception e)
+                    {
+                        _r.AppendLine($"{e.Message} on line: {iLineNumber} : {line}", Brushes.Red);
+                    }
                 }
             }
         }
@@ -537,6 +548,49 @@ namespace NuSpecHelper
 
             var d = new DirectoryInfo(fullpath);
             return d;
+        }
+
+        private void Map(object sender, RoutedEventArgs e)
+        {
+            if (_geoDictionary == null)
+                InitGeoDictionary();
+            //for (double x = 0; x < 61; x += 30)
+            //{
+            //    for (double y = 0; y < 61; y += 30)
+            //    {
+            //        Project(x, y);
+            //    }
+            //}
+            //return;        
+            foreach (var statItem in _geoDictionary.Values)
+            {
+                var lat = statItem.Ip.getLatitude();
+                var lon = statItem.Ip.getLongitude();
+                var coord = new[] {lon, lat};
+                Project(coord);
+            }
+        }
+
+        private void Project(double x, double y)
+        {
+            var coord = new[] { x, y };
+            Project(coord);
+        }
+
+        private void Project(double[] xy)
+        {
+            //An array for the z coordinate
+            double[] z = new double[1];
+            z[0] = 1;
+            //Defines the starting coordiante system
+            var pStart = KnownCoordinateSystems.Geographic.World.WGS1984;
+            //Defines the ending coordiante system
+            var pEnd = KnownCoordinateSystems.Projected.World.Robinsonworld;
+            //Calls the reproject function that will transform the input location to the output locaiton
+            Reproject.ReprojectPoints(xy, z, pStart, pEnd, 0, 1);
+
+            _r.AppendLine("point");
+            _r.AppendLine($"{xy[0]},{xy[1]}");
         }
     }
 }

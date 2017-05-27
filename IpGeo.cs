@@ -19,5 +19,19 @@ namespace NuSpecHelper
         public string latitude;
         public string longitude;
         public string metro_code;
+
+        public double getLongitude()
+        {
+            double val;
+            double.TryParse(longitude, out val);
+            return val;
+        }
+
+        public double getLatitude()
+        {
+            double val;
+            double.TryParse(latitude, out val);
+            return val;
+        }
     }
 }
