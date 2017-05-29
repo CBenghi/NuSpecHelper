@@ -423,40 +423,36 @@ namespace NuSpecHelper
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            if (SetupNewReport())
-                return;
+            MessageBox.Show("Not implemented");
+            //if (SetupNewReport())
+            //    return;
 
-            var v = SemanticVersion.Parse(TxtVersion.Text);
-            Debug.WriteLine(v);
+            //var v = SemanticVersion.Parse(TxtVersion.Text);
+            //Debug.WriteLine(v);
 
-            using (new WaitCursor())
-            {
-                var nugetRepo = _repos.GetRepo();
+            //using (new WaitCursor())
+            //{
+            //    var nugetRepo = _repos.GetRepo();
 
-                semver.tools.IVersionSpec Iver;
-                semver.tools.VersionSpec.TryParseNuGet(TxtVersion.Text, out Iver);
-
-                // nugetRepo.FindPackages("", new VersionSpec. , true, true);
-
-
-            }
+            //    semver.tools.IVersionSpec Iver;
+            //    semver.tools.VersionSpec.TryParseNuGet(TxtVersion.Text, out Iver);
+            //}
         }
 
-        private string ipCacheFileName
-        {
-            get
-            {
-                return Path.Combine(
-                    UsageDirectory().FullName,
-                    "geoCache.txt"
-                );
-            }
-        }
+        private string IpCacheFileName => Path.Combine(
+            UsageDirectory().FullName,
+            "geoCache.txt"
+        );
 
-        private Dictionary<string, StatItem> _geoDictionary;
+        private Dictionary<string, IpGeo> _geoDictionary;
+
+
 
         private void Usage(object sender, RoutedEventArgs e)
         {
+            var rt = ReportType.Text;
+
+
             Report.Document = new FlowDocument();
             if (_geoDictionary == null)
                 InitGeoDictionary();
@@ -468,7 +464,7 @@ namespace NuSpecHelper
                 return;
             }
             using (new WaitCursor())
-            using (var cwr = File.AppendText(ipCacheFileName))
+            using (var cwr = File.AppendText(IpCacheFileName))
             using (var w = new WebClient())
             {
                 foreach (var fName in d.GetFiles(@"*.log"))
@@ -476,6 +472,10 @@ namespace NuSpecHelper
                     _r.AppendLine("=== Reporting " + fName, Brushes.Blue);
                     using (var tr = File.OpenText(fName.FullName))
                     {
+                        // prepare data
+                        //
+                        var data = new Dictionary<string, List<string>>();
+
                         string line;
                         while ((line = tr.ReadLine()) != null)
                         {
@@ -487,25 +487,57 @@ namespace NuSpecHelper
 
                             if (!_geoDictionary.ContainsKey(ip))
                             {
-                                var json_data = string.Empty;
                                 // attempt to download JSON data as a string
                                 var url = @"http://freegeoip.net/json/" + ip;
-                                json_data = w.DownloadString(url);
-                                if (string.IsNullOrEmpty(json_data))
+                                var jsonData = w.DownloadString(url);
+                                if (string.IsNullOrEmpty(jsonData))
                                     continue;
-                                cwr.WriteLine(json_data.Replace(Environment.NewLine, ""));
-                                var deser = JsonConvert.DeserializeObject<IpGeo>(json_data);
-                                var s = new StatItem(deser);
-                                _geoDictionary.Add(ip, s);
+                                cwr.WriteLine(jsonData.Replace(Environment.NewLine, ""));
+                                var deser = JsonConvert.DeserializeObject<IpGeo>(jsonData);
+                                // var s = new StatItem(deser);
+                                _geoDictionary.Add(ip, deser);
                             }
-                            _geoDictionary[ip].Launches.Add(logTime);
-                        }
-                        foreach (var stat in _geoDictionary.Values)
-                        {
-                            _r.AppendLine($"{stat.Ip.ip} {stat.Ip.country_name} {stat.Ip.city}", Brushes.Black);
-                            foreach (var statLaunch in stat.Launches)
+
+                            string groupItem;
+                            string instanceValue;
+                            if (rt == "IP")
                             {
-                                _r.AppendLine($"\t{statLaunch.ToShortDateString()} {statLaunch.ToShortTimeString()}");
+                                groupItem = ip;
+                                instanceValue = $"{logTime.ToShortDateString()} {logTime.ToShortTimeString()}";
+                            }
+                            else
+                            {
+                                instanceValue = $"{ip} {_geoDictionary[ip].country_name} {_geoDictionary[ip].city} {logTime.ToShortTimeString()}";
+                                groupItem = $"{logTime.ToShortDateString()}";
+                            }
+                            List<string> i;
+                            if (data.TryGetValue(groupItem, out i))
+                            {
+                                i.Add(instanceValue);
+                            }
+                            else
+                            {
+                                data.Add(groupItem, new List<string>() { instanceValue }); 
+                            }
+                        }
+
+                        // now report
+                        //
+                        foreach (var stat in data.Keys)
+                        {
+                            if (rt == "IP")
+                            {
+                                var ip = _geoDictionary[stat];
+                                 _r.AppendLine($"{ip.ip} {ip.country_name} {ip.city}", Brushes.Black);
+                            }
+                            else
+                            {
+                               _r.AppendLine(stat);
+                            }
+                                
+                            foreach (var statLaunch in data[stat])
+                            {
+                                _r.AppendLine("\t" + statLaunch);
                             }
                         }
                     }
@@ -515,8 +547,8 @@ namespace NuSpecHelper
 
         private void InitGeoDictionary()
         {
-            _geoDictionary = new Dictionary<string, StatItem>();
-            using (var tr = File.OpenText(ipCacheFileName))
+            _geoDictionary = new Dictionary<string, IpGeo>();
+            using (var tr = File.OpenText(IpCacheFileName))
             {
                 string line;
                 int iLineNumber = 0;
@@ -530,8 +562,8 @@ namespace NuSpecHelper
                     try
                     {
                         var deser = JsonConvert.DeserializeObject<IpGeo>(line);
-                        var s = new StatItem(deser);
-                        _geoDictionary.Add(deser.ip, s);
+                        // var s = new StatItem(deser);
+                        _geoDictionary.Add(deser.ip, deser);
                     }
                     catch (Exception e)
                     {
@@ -564,19 +596,13 @@ namespace NuSpecHelper
             //return;        
             foreach (var statItem in _geoDictionary.Values)
             {
-                var lat = statItem.Ip.getLatitude();
-                var lon = statItem.Ip.getLongitude();
+                var lat = statItem.getLatitude();
+                var lon = statItem.getLongitude();
                 var coord = new[] {lon, lat};
                 Project(coord);
             }
         }
-
-        private void Project(double x, double y)
-        {
-            var coord = new[] { x, y };
-            Project(coord);
-        }
-
+        
         private void Project(double[] xy)
         {
             //An array for the z coordinate

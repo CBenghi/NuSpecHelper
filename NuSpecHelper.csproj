@@ -121,7 +121,6 @@
     <Compile Include="ProjectPackages.cs" />
     <Compile Include="Repository.cs" />
     <Compile Include="RichTextBoxReporter.cs" />
-    <Compile Include="StatItem.cs" />
     <Compile Include="WaitCursor.cs" />
     <Compile Include="XbimAssemblyInfo.cs" />
     <Page Include="MainWindow.xaml">
