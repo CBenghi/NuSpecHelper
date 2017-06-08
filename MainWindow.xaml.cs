@@ -525,19 +525,28 @@ namespace NuSpecHelper
                         //
                         foreach (var stat in data.Keys)
                         {
+                            // preparation
+                            var header = stat;
                             if (rt == "IP")
                             {
                                 var ip = _geoDictionary[stat];
-                                 _r.AppendLine($"{ip.ip} {ip.country_name} {ip.city}", Brushes.Black);
+                                header = $"{ip.ip} {ip.country_name} {ip.city}";
+                            }
+
+                            // reporting
+                            if (ReportCount.IsChecked.HasValue && ReportCount.IsChecked.Value)
+                            {
+                                // only report count
+                                _r.AppendLine($"{header}\t{data[stat].Count}" );
                             }
                             else
                             {
-                               _r.AppendLine(stat);
-                            }
-                                
-                            foreach (var statLaunch in data[stat])
-                            {
-                                _r.AppendLine("\t" + statLaunch);
+                                // full report
+                                _r.AppendLine(header);
+                                foreach (var statLaunch in data[stat])
+                                {
+                                    _r.AppendLine("\t" + statLaunch);
+                                }
                             }
                         }
                     }
@@ -618,5 +627,7 @@ namespace NuSpecHelper
             _r.AppendLine("point");
             _r.AppendLine($"{xy[0]},{xy[1]}");
         }
+
+      
     }
 }
