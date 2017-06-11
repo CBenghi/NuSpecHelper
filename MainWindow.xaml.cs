@@ -467,6 +467,7 @@ namespace NuSpecHelper
             using (var cwr = File.AppendText(IpCacheFileName))
             using (var w = new WebClient())
             {
+                w.Encoding = System.Text.Encoding.UTF8;
                 foreach (var fName in d.GetFiles(@"*.log"))
                 {
                     _r.AppendLine("=== Reporting " + fName, Brushes.Blue);
@@ -492,7 +493,7 @@ namespace NuSpecHelper
                                 var jsonData = w.DownloadString(url);
                                 if (string.IsNullOrEmpty(jsonData))
                                     continue;
-                                cwr.WriteLine(jsonData.Replace(Environment.NewLine, ""));
+                                cwr.WriteLine(ToOneLine(jsonData));
                                 var deser = JsonConvert.DeserializeObject<IpGeo>(jsonData);
                                 // var s = new StatItem(deser);
                                 _geoDictionary.Add(ip, deser);
@@ -552,6 +553,15 @@ namespace NuSpecHelper
                     }
                 }
             }
+        }
+
+        private string ToOneLine(string jsonData)
+        {
+            var ret = jsonData;
+            ret = ret.Replace("\r", "");
+            ret = ret.Replace("\t", "");
+            ret = ret.Replace("\n", "");
+            return ret;
         }
 
         private void InitGeoDictionary()
