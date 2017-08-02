@@ -708,29 +708,9 @@ namespace NuSpecHelper
 
         private void ListDependencies(object sender, RoutedEventArgs e)
         {
-            // var occ = new OccSource("C:\\Users\\Claudio\\Downloads\\occt-14bbbdc\\src");
-            var occ = new OccSource(
-                "C:\\Users\\Claudio\\Downloads\\opencascade-7.1.0\\src",
-                "C:\\Users\\Claudio\\Dev\\Xbim3\\XbimGeometry3\\Xbim.Geometry.Engine"
-                );
-            var except = new[] { "CSF_.+" };
-            var initlibs = new[]
-            {
-                "TKShHealing",
-                "TKBool",
-                "TKFillet",
-                "TKMesh",
-                "TKOffset"
-            };
-            
-            foreach (var initlib in initlibs)
-            {
-                var p1 = occ.GetLib(initlib);
-                p1.Include(except);
-            }
-            
-            var lstExtensions = new List<string>();
+            var occ = GetOccConfig();
 
+            var lstExtensions = new List<string>();
             foreach (var lib in occ.AllLibs())
             {
                 // Debug.WriteLine(lib.Name);
@@ -754,6 +734,31 @@ namespace NuSpecHelper
                     }
                 }
             }
+        }
+
+        private static OccSource GetOccConfig()
+        {
+            var occ = new OccSource(
+                            "C:\\Users\\Claudio\\Downloads\\opencascade-7.1.0\\src",
+                            "C:\\Users\\Claudio\\Dev\\Xbim3\\XbimGeometry3\\Xbim.Geometry.Engine"
+                            );
+            var except = new[] { "CSF_.+" };
+            var initlibs = new[]
+            {
+                "TKShHealing",
+                "TKBool",
+                "TKFillet",
+                "TKMesh",
+                "TKOffset"
+            };
+
+            foreach (var initlib in initlibs)
+            {
+                var p1 = occ.GetLib(initlib);
+                p1.Include(except);
+            }
+
+            return occ;
         }
 
         private void Study(object sender, RoutedEventArgs e)
@@ -799,6 +804,12 @@ namespace NuSpecHelper
 
 
 
+        }
+
+        private void MakeProject(object sender, RoutedEventArgs e)
+        {
+            var occ = GetOccConfig();
+            occ.MakeProject();
         }
     }
 }

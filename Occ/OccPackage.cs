@@ -11,6 +11,8 @@ namespace NuSpecHelper.Occ
     {
         private OccLib _lib;
 
+        public string SourceRelativeFolder => $"OCC\\src\\{Name}";
+
         public OccPackage(OccLib lib)
         {
             _lib = lib;

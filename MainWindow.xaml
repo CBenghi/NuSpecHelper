@@ -81,8 +81,8 @@
             </TabItem>
             <TabItem Header="OpenCascade">
                 <Grid Background="#FFE5E5E5">
-                    <Button Content="Process packages" Click="ListDependencies" Margin="10,10,10,0" Height="22" VerticalAlignment="Top" />
-                    <Button Content="Study" Click="Study" Margin="10,37,10,0" Height="22" VerticalAlignment="Top" />
+                    <Button Content="list packages" Click="ListDependencies" Margin="10,10,10,0" Height="22" VerticalAlignment="Top" />
+                    <Button Content="Make New Project" Click="MakeProject" Margin="10,37,10,0" Height="22" VerticalAlignment="Top" />
                     
 
                 </Grid>

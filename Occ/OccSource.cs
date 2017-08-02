@@ -40,44 +40,91 @@ namespace NuSpecHelper.Occ
             return _libs.Values;
         }
 
+        public IEnumerable<OccPackage> AllPackages()
+        {
+            return AllLibs().SelectMany(lib => lib.Packages);
+        }
+
         public void MakeProject()
         {
             var csProj = new FileInfo(
-                "C:\\Users\\Claudio\\Dev\\Xbim3\\XbimGeometry3\\Xbim.Geometry.Engine\\Xbim.Geometry.Engine.vcxproj");
-            var xbim3new = new FileInfo(
-                "C:\\Users\\Claudio\\Dev\\Xbim3\\XbimGeometry3\\Xbim.Geometry.Engine\\Xbim.Geometry.Engine.vcxproj.new");
+                Path.Combine(GeometryProjectFolder.FullName,
+                    "Xbim.Geometry.Engine.vcxproj"
+                ));
+                
+            var csProjNew = new FileInfo(
+                Path.Combine(GeometryProjectFolder.FullName,
+                    "Xbim.Geometry.Engine.vcxproj.new"
+                ));
 
 
-            var findFile = "<Action +Include=\"filename\">[\\s\\n\\r]*<Filter>([\\\\\\w\\s]+)</Filter>";
 
-            var vals = new List<string>();
+            var replaceAdditional = "      <AdditionalIncludeDirectories>$(CSF_OPT_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>";
+            var reIncludeAction = new Regex("<(?<action>[\\S]+) *Include=\"(?<file>[^\"]+?)(\\.(?<ext>[\\w]+))?\" */>", RegexOptions.Compiled);
+            var itemGroup = new Regex(" *<ItemGroup *[^>]*>");
 
-            var re = new Regex("<(?<action>[\\S]+) *Include=\"(?<file>[^\"]+?)(\\.(?<ext>[\\w]+))?\" */>");
 
-            using (var write = xbim3new.CreateText())
+
+            using (var newProject = csProjNew.CreateText())
             using (var read = csProj.OpenText())
             {
+                string conditionalBuffer = "";
                 string line;
                 while ((line = read.ReadLine()) != null)
                 {
-                    var t = re.Match(line);
+                    // manage conditional buffer
+                    //
+                    if (itemGroup.IsMatch(line))
+                    {
+                        conditionalBuffer = line;
+                        continue;
+                    }
+
+                    if (conditionalBuffer != "")
+                    {
+                        if (line.Contains("</ItemGroup>"))
+                        {
+                            conditionalBuffer = "";
+                            continue;
+                        }
+                    }
+                    
+                    // include actions
+                    // 
+                    var t = reIncludeAction.Match(line);
                     if (t.Success)
                     {
-                        var str = "Ext: " + t.Groups["ext"].Value + " -> " + t.Groups["action"].Value;
-
-                        if (t.Groups["ext"].Value == "")
+                        if (t.Groups["file"].Value.Contains("OCC\\src"))
                         {
-                            Debug.WriteLine("File : " + t.Groups["file"].Value);
-                        }
-
-                        if (vals.Contains(str))
+                            // skip line
                             continue;
-                        Debug.WriteLine(str);
-                        vals.Add(str);
+                        }
                     }
+
+                    // any skipped line before this
+                    //
+                    if (conditionalBuffer != "")
+                    {
+                        newProject.WriteLine(conditionalBuffer);
+                        conditionalBuffer = "";
+                    }
+                    
+                    // AdditionalIncludeDirectories
+                    if (line.Contains("<AdditionalIncludeDirectories"))
+                    {
+                        newProject.WriteLine(replaceAdditional);
+                        continue;
+                    }
+
+                    // populate occ source
+                    // <!-- occSource -->
+                    if (line.Contains("<!-- occSource -->"))
+                    {
+                        // populate source
+                    }
+                    newProject.WriteLine(line);
                 }
             }
         }
-
     }
 }
