@@ -42,6 +42,7 @@
                     <Button Content="List clr version." Click="ListClr" Margin="10,10,10,0" Height="22" VerticalAlignment="Top" />
                     <Button Content="Find dll Conflict" Click="FindConflict" Margin="10,37,10,0" Height="22" VerticalAlignment="Top" />
                     <Button Content="List Xbim Version." Click="ListXbimAssemblyVersions" Margin="10,64,10,0" Height="22" VerticalAlignment="Top" />
+                    <Button Content="Fix c++ filter." Click="FixCFilter" Margin="10,64,10,0" Height="22" VerticalAlignment="Top" />
 
                 </Grid>
             </TabItem>
@@ -75,6 +76,14 @@
                             <Button Margin="253,0,10,14" Click="Usage" Height="25" VerticalAlignment="Bottom">Report</Button>
                         </Grid>
                     </GroupBox>
+
+                </Grid>
+            </TabItem>
+            <TabItem Header="OpenCascade">
+                <Grid Background="#FFE5E5E5">
+                    <Button Content="Process packages" Click="ListDependencies" Margin="10,10,10,0" Height="22" VerticalAlignment="Top" />
+                    <Button Content="Study" Click="Study" Margin="10,37,10,0" Height="22" VerticalAlignment="Top" />
+                    
 
                 </Grid>
             </TabItem>

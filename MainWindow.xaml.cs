@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Runtime.Versioning;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
@@ -14,6 +15,7 @@ using DotSpatial.Projections;
 using FindConflictingReference;
 using Newtonsoft.Json;
 using NuGet;
+using NuSpecHelper.Occ;
 using XbimPlugin.MvdXML.Viewing;
 using Settings = NuSpecHelper.Properties.Settings;
 
@@ -638,6 +640,165 @@ namespace NuSpecHelper
             _r.AppendLine($"{xy[0]},{xy[1]}");
         }
 
-      
+        private void FixCFilter(object sender, RoutedEventArgs e)
+        {
+            return;
+            
+            var xbim4 = new FileInfo(
+                "C:\\Users\\Claudio\\Dev\\XbimTeam\\XbimGeometry\\Xbim.Geometry.Engine\\Xbim.Geometry.Engine.vcxproj.filters");
+            var xbim3 = new FileInfo(
+                "C:\\Users\\Claudio\\Dev\\Xbim3\\XbimGeometry\\Xbim.Geometry.Engine\\Xbim.Geometry.Engine.vcxproj.filters");
+            var xbim3new = new FileInfo(
+                "C:\\Users\\Claudio\\Dev\\Xbim3\\XbimGeometry\\Xbim.Geometry.Engine\\Xbim.Geometry.Engine.vcxproj.newfilters");
+
+
+            string proj4;
+            using (var read = xbim4.OpenText())
+            {
+                proj4 = read.ReadToEnd();
+            }
+
+            var findFile = "<Action +Include=\"filename\">[\\s\\n\\r]*<Filter>([\\\\\\w\\s]+)</Filter>";
+            
+
+
+            var re = new Regex("<(?<action>[\\S]+) *Include=\"(?<file>[^\"]+)\" */>");
+            using (var write = xbim3new.CreateText())
+            using (var read = xbim3.OpenText())
+            {
+                string line;
+                while ((line = read.ReadLine()) != null)
+                {
+                    var t = re.Match(line);
+                    if (t.Success)
+                    {
+                        var file = t.Groups["file"].Value.Replace("\\", "\\\\");
+
+                        if (file.StartsWith("Xbim"))
+                        {
+                            write.WriteLine(line);
+                            continue;
+                        }
+
+                        var action = t.Groups["action"].Value;
+                        var findThisFile = findFile
+                            .Replace("Action", action)
+                            .Replace("filename", file);
+                        var thisre = new Regex(findThisFile);
+
+                        var thism = thisre.Match(proj4);
+                        if (thism.Success)
+                        {
+                            var fname = t.Groups["file"].Value;
+                            var dest = thism.Groups[1].Value;
+                            write.WriteLine($"<{action} Include=\"{fname}\"><Filter>{dest}</Filter></{action}>");
+                        }
+                        else
+                        {
+                            write.WriteLine(line);
+                        }
+                    }
+                    else
+                    {
+                        write.WriteLine(line);
+                    }
+                }
+            }
+        }
+
+        private void ListDependencies(object sender, RoutedEventArgs e)
+        {
+            // var occ = new OccSource("C:\\Users\\Claudio\\Downloads\\occt-14bbbdc\\src");
+            var occ = new OccSource(
+                "C:\\Users\\Claudio\\Downloads\\opencascade-7.1.0\\src",
+                "C:\\Users\\Claudio\\Dev\\Xbim3\\XbimGeometry3\\Xbim.Geometry.Engine"
+                );
+            var except = new[] { "CSF_.+" };
+            var initlibs = new[]
+            {
+                "TKShHealing",
+                "TKBool",
+                "TKFillet",
+                "TKMesh",
+                "TKOffset"
+            };
+            
+            foreach (var initlib in initlibs)
+            {
+                var p1 = occ.GetLib(initlib);
+                p1.Include(except);
+            }
+            
+            var lstExtensions = new List<string>();
+
+            foreach (var lib in occ.AllLibs())
+            {
+                // Debug.WriteLine(lib.Name);
+                foreach (var libPackage in lib.Packages)
+                {
+                    // Debug.WriteLine("\t" + libPackage.Name);
+                    foreach (var fileName in libPackage.FileNames())
+                    {
+                        // Debug.WriteLine("\t\t" + fileName);
+                        var ext = Path.GetExtension(fileName);
+
+                        if (ext == ".yacc")
+                        {
+                            Debug.WriteLine("File : " + fileName);
+                        }
+
+                        if (lstExtensions.Contains(ext))
+                            continue;
+                        Debug.WriteLine("Ext: " + ext);
+                        lstExtensions.Add(ext);
+                    }
+                }
+            }
+        }
+
+        private void Study(object sender, RoutedEventArgs e)
+        {
+            // in Project
+            //
+            //      Configuration Reference
+            //      Core Reference
+            //      Data Reference
+            //      Xml Reference
+            //      h ClInclude
+            //      c ClCompile
+            //      rc ResourceCompile
+            //      ico Image
+
+            //      hxx ClInclude
+            //      cxx ClCompile
+            //      gxx None
+            //      lxx None
+            //      pxx None
+
+            //      tcl None
+            //      bat None
+            //      txt Text
+
+            // found in occ
+            //
+            //      Ext: .cxx
+            //      Ext: .hxx
+            //      Ext: .lxx
+            //      Ext: .gxx
+            //      Ext: .pxx
+            //      Ext: .tcl
+
+            //      Ext: .c
+            //      Ext: .h
+
+            //      Ext: .lex
+            //      Ext: .yacc
+            //      Ext:
+            //      Ext: .dat
+
+
+
+
+        }
     }
 }
