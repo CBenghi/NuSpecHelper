@@ -83,7 +83,9 @@
                 <Grid Background="#FFE5E5E5">
                     <Button Content="list packages" Click="ListDependencies" Margin="10,10,10,0" Height="22" VerticalAlignment="Top" />
                     <Button Content="Make New Project" Click="MakeProject" Margin="10,37,10,0" Height="22" VerticalAlignment="Top" />
-                    
+                    <Button Content="Make New Project Filters" Click="MakeProjectFilters" Margin="10,64,10,0" Height="22" VerticalAlignment="Top" />
+                    <Button Content="Replace source files" Click="ReplaceOccSource" Margin="10,109,10,0" Height="22" VerticalAlignment="Top" />
+
 
                 </Grid>
             </TabItem>

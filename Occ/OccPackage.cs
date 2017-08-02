@@ -11,6 +11,11 @@ namespace NuSpecHelper.Occ
     {
         private OccLib _lib;
 
+        public OccLib Lib
+        {
+            get { return _lib; }
+        }
+        
         public string SourceRelativeFolder => $"OCC\\src\\{Name}";
 
         public OccPackage(OccLib lib)
@@ -38,31 +43,7 @@ namespace NuSpecHelper.Occ
             }
         }
 
-        public string GetAction(string extension)
-        {
-            switch (extension)
-            {
-                case ".hxx":
-                case ".h":
-                    return "ClInclude";
-                case ".cxx":
-                case ".c":
-                    return "ClCompile";
-                case ".rc":
-                    return "ResourceCompile";
-                case ".ico":
-                    return "Image";
-                case ".txt":
-                    return "Text";
-                case ".Configuration":
-                case ".Core":
-                case ".Data":
-                case ".Xml":
-                    return "Reference";
-                default:
-                    return "None";
-            }
-        }
+       
 
         public string Name { get; set; }
     }

@@ -739,8 +739,8 @@ namespace NuSpecHelper
         private static OccSource GetOccConfig()
         {
             var occ = new OccSource(
-                            "C:\\Users\\Claudio\\Downloads\\opencascade-7.1.0\\src",
-                            "C:\\Users\\Claudio\\Dev\\Xbim3\\XbimGeometry3\\Xbim.Geometry.Engine"
+                            "E:\\Dev\\OpenCascade\\occt-14bbbdc\\src",
+                            "E:\\Dev\\Xbim3\\XbimGeometry3\\Xbim.Geometry.Engine"
                             );
             var except = new[] { "CSF_.+" };
             var initlibs = new[]
@@ -810,6 +810,18 @@ namespace NuSpecHelper
         {
             var occ = GetOccConfig();
             occ.MakeProject();
+        }
+
+        private void MakeProjectFilters(object sender, RoutedEventArgs e)
+        {
+            var occ = GetOccConfig();
+            occ.MakeProjectFilters();
+        }
+
+        private void ReplaceOccSource(object sender, RoutedEventArgs e)
+        {
+            var occ = GetOccConfig();
+            occ.ReplaceSource();
         }
     }
 }
