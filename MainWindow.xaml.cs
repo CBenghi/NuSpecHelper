@@ -740,7 +740,7 @@ namespace NuSpecHelper
         {
             var occ = new OccSource(
                             "E:\\Dev\\OpenCascade\\occt-14bbbdc\\src",
-                            "E:\\Dev\\Xbim3\\XbimGeometry3\\Xbim.Geometry.Engine"
+                            "E:\\Dev\\XbimTeam\\XbimGeometry\\Xbim.Geometry.Engine"
                             );
             var except = new[] { "CSF_.+" };
             var initlibs = new[]
@@ -821,7 +821,7 @@ namespace NuSpecHelper
         private void ReplaceOccSource(object sender, RoutedEventArgs e)
         {
             var occ = GetOccConfig();
-            occ.ReplaceSource();
+            occ.ReplaceSource(_r);
         }
     }
 }

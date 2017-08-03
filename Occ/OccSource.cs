@@ -266,12 +266,16 @@ namespace NuSpecHelper.Occ
             sb.AppendLine($"    </Filter>");
         }
 
-        public void ReplaceSource()
+        
+        internal void ReplaceSource(RichTextBoxReporter _r, bool justCopy = false)
         {
+            var regex = new Regex(@"(\r\n?|\n)", RegexOptions.Compiled);
+
             // empty the existing directory
             Directory.Delete(OccDestFolder.FullName, true);
             // create again
             OccDestFolder.Create();
+
             foreach (var lib in AllLibs())
             {
                 foreach (var package in lib.Packages)
@@ -282,12 +286,48 @@ namespace NuSpecHelper.Occ
                     dDest.Create();
                     foreach (var fileName in package.FileNames())
                     {
+                        _r.AppendLine(fileName);
                         var dest = new FileInfo(Path.Combine(dDest.FullName, fileName));
                         var src = new FileInfo(Path.Combine(dSrc.FullName, fileName));
-                        File.Copy(src.FullName, dest.FullName);
+                        if (justCopy) // just copy
+                            File.Copy(src.FullName, dest.FullName);
+                        else
+                        {
+                            var needNewLineConversion = NeedNewLineConversion(src);
+                            if (!needNewLineConversion)
+                                File.Copy(src.FullName, dest.FullName);
+                            else
+                            {
+                                using (var r = src.OpenText())
+                                using (var w = dest.CreateText())
+                                {
+                                    var all = r.ReadToEnd();
+                                    all = regex.Replace(all, "\r\n");  
+                                    w.Write(all);
+                                }
+                            }
+                        }
                     }
                 }
             }            
         }
+
+        internal static Regex ReXxx = new Regex(@"^\.\wxx$", RegexOptions.Compiled);
+
+        private bool NeedNewLineConversion(FileInfo src)
+        {
+            var ext = src.Extension;
+            if (ReXxx.IsMatch(ext))
+                return true;           
+            switch (ext)
+            {
+                case ".c":
+                case ".h":
+                    return true;
+            }
+            return false;
+        }
+
+        
     }
 }
