@@ -35,9 +35,7 @@ namespace NuSpecHelper.Occ
 
         public DirectoryInfo GetDir(string name)
         {
-            return new DirectoryInfo(
-                Path.Combine(_source.OccSourceFolder.FullName, name)
-            );
+            return _source.GetDir(name);
         }
 
         private IEnumerable<string> PackagesNames()

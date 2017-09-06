@@ -11,6 +11,20 @@ namespace NuSpecHelper.Occ
 {
     public class OccSource
     {
+        public DirectoryInfo GetDir(string name)
+        {
+            try
+            {
+                return new DirectoryInfo(
+                    Path.Combine(OccSourceFolder.FullName, name)
+                );
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
         public static string GetAction(string extension)
         {
             extension = Path.GetExtension(extension);
@@ -53,6 +67,8 @@ namespace NuSpecHelper.Occ
             return p;
         }
 
+        List<OccPackage> _extraPackages = new List<OccPackage>();
+
         public OccSource(string occSourceFolder, string xbimGeometryProjectFolder)
         {
             OccSourceFolder = new DirectoryInfo(occSourceFolder);
@@ -60,6 +76,10 @@ namespace NuSpecHelper.Occ
             OccDestFolder = new DirectoryInfo(Path.Combine(
                 xbimGeometryProjectFolder,
                 "OCC\\src\\"));
+
+            // extra source
+            var p = new OccPackage(this) {Name = "SHMessage"};
+            _extraPackages.Add(p);
         }
         
         public IEnumerable<OccLib> AllLibs()
@@ -269,65 +289,26 @@ namespace NuSpecHelper.Occ
         
         internal void ReplaceSource(RichTextBoxReporter _r, bool justCopy = false)
         {
-            var regex = new Regex(@"(\r\n?|\n)", RegexOptions.Compiled);
-
             // empty the existing directory
-            Directory.Delete(OccDestFolder.FullName, true);
+            if (OccDestFolder.Exists)
+                Directory.Delete(OccDestFolder.FullName, true);
             // create again
             OccDestFolder.Create();
 
+            var srcF = OccSourceFolder.FullName;
+            var dstF = OccDestFolder.FullName;
+            foreach (var extraPackage in _extraPackages)
+            {
+                extraPackage.CopySource(srcF, dstF, justCopy, _r);
+            }
             foreach (var lib in AllLibs())
             {
                 foreach (var package in lib.Packages)
                 {
-                    // create package folder
-                    var dSrc = new DirectoryInfo(Path.Combine(OccSourceFolder.FullName, package.Name));
-                    var dDest = new DirectoryInfo(Path.Combine(OccDestFolder.FullName, package.Name));
-                    dDest.Create();
-                    foreach (var fileName in package.FileNames())
-                    {
-                        _r.AppendLine(fileName);
-                        var dest = new FileInfo(Path.Combine(dDest.FullName, fileName));
-                        var src = new FileInfo(Path.Combine(dSrc.FullName, fileName));
-                        if (justCopy) // just copy
-                            File.Copy(src.FullName, dest.FullName);
-                        else
-                        {
-                            var needNewLineConversion = NeedNewLineConversion(src);
-                            if (!needNewLineConversion)
-                                File.Copy(src.FullName, dest.FullName);
-                            else
-                            {
-                                using (var r = src.OpenText())
-                                using (var w = dest.CreateText())
-                                {
-                                    var all = r.ReadToEnd();
-                                    all = regex.Replace(all, "\r\n");  
-                                    w.Write(all);
-                                }
-                            }
-                        }
-                    }
+                    package.CopySource(srcF, dstF, justCopy, _r);
                 }
-            }            
-        }
-
-        internal static Regex ReXxx = new Regex(@"^\.\wxx$", RegexOptions.Compiled);
-
-        private bool NeedNewLineConversion(FileInfo src)
-        {
-            var ext = src.Extension;
-            if (ReXxx.IsMatch(ext))
-                return true;           
-            switch (ext)
-            {
-                case ".c":
-                case ".h":
-                    return true;
             }
-            return false;
-        }
-
-        
+            
+        }       
     }
 }
