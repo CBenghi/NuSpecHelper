@@ -16,7 +16,7 @@
                     <Button Content="Find dependency inconsistencies in Nuspec." Margin="85,47,10,0" VerticalAlignment="Top" Click="ButtonBase_OnClick" />
                     <Button Content="Find updatable (local)" Grid.Column="0" VerticalAlignment="Top" Click="FindUpdate" Margin="85,71,10,0" />
                     <TextBox x:Name="Folder" Height="23" Margin="85,14,10,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top"/>
-                    <Label Content="Folder:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75"/>
+                    <Label Content="Folder:" HorizontalAlignment="Left" Margin="10,12,0,0" VerticalAlignment="Top" Width="75"/>
                     <Button x:Name="RemovePackageButton" IsEnabled="False" Content="Remove Unused Packages" Margin="85,95,10,0" Click="RemoveUnused" Height="22" VerticalAlignment="Top" />
                     <CheckBox x:Name="chkSaveConfig" Content="Save path config" HorizontalAlignment="Left" Margin="85,122,0,0" VerticalAlignment="Top" IsChecked="True"/>
                 </Grid>
@@ -66,7 +66,7 @@
                         <Grid>
                             <TextBox x:Name="UsageFolder" Height="23" Margin="85,10,10,0" TextWrapping="Wrap" Text="Squirrel.Windows\XplorerReleases" VerticalAlignment="Top"/>
                             <Label Content="Folder:" HorizontalAlignment="Left" Margin="10,6,0,0" VerticalAlignment="Top" Width="75"/>
-                            
+
                             <ComboBox Name="ReportType" Margin="85,38,10,44" >
                                 <ComboBoxItem Content="IP" IsSelected="True"/>
                                 <ComboBoxItem Content="Timeline"/>
@@ -81,10 +81,17 @@
             </TabItem>
             <TabItem Header="OpenCascade">
                 <Grid Background="#FFE5E5E5">
-                    <Button Content="list packages" Click="ListDependencies" Margin="10,10,10,0" Height="22" VerticalAlignment="Top" />
-                    <Button Content="Make New Project" Click="MakeProject" Margin="10,37,10,0" Height="22" VerticalAlignment="Top" />
-                    <Button Content="Make New Project Filters" Click="MakeProjectFilters" Margin="10,64,10,0" Height="22" VerticalAlignment="Top" />
+                    <TextBox x:Name="OccFolder" Height="23" Margin="120,12,10,0" TextWrapping="Wrap" Text="E:\OpenCASCADE-7.2.0-vc10-64\opencascade-7.2.0\src" VerticalAlignment="Top"/>
+                    <Label Content="OCCFolder" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75"/>
+
+                    <TextBox x:Name="XbimGeomFolder" Height="23" Margin="120,40,10,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top"/>
+                    <Label Content="XbimGeomFolder" HorizontalAlignment="Left" Margin="10,38,0,0" VerticalAlignment="Top" Width="105"/>
+
+                    <Button Content="list packages" Click="ListDependencies" Margin="0,82,319,0" Height="22" VerticalAlignment="Top" HorizontalAlignment="Right" Width="158" />
+                    <Button Content="Make New Project" Click="MakeProject" Margin="0,82,190,0" Height="22" VerticalAlignment="Top" HorizontalAlignment="Right" Width="124" />
+                    <Button Content="Make New Project Filters" Click="MakeProjectFilters" Margin="0,82,10,0" Height="22" VerticalAlignment="Top" HorizontalAlignment="Right" Width="175" />
                     <Button Content="Replace source files" Click="ReplaceOccSource" Margin="10,109,10,0" Height="22" VerticalAlignment="Top" />
+
 
 
                 </Grid>

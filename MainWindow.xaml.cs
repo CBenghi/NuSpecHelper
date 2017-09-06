@@ -35,7 +35,12 @@ namespace NuSpecHelper
                 var d = new DirectoryInfo(".");
                 Folder.Text = d.FullName;
             }
-
+            var dSub = new DirectoryInfo(Folder.Text);
+            var subGeom = dSub.GetDirectories("xbimgeometry*").FirstOrDefault();
+            if (subGeom != null)
+            {
+                XbimGeomFolder.Text = Path.Combine(subGeom.FullName, "Xbim.Geometry.Engine");
+            }
             _r = new RichTextBoxReporter(Report);
         }
 
@@ -447,9 +452,7 @@ namespace NuSpecHelper
         );
 
         private Dictionary<string, IpGeo> _geoDictionary;
-
-
-
+        
         private void Usage(object sender, RoutedEventArgs e)
         {
             var rt = ReportType.Text;
@@ -736,12 +739,12 @@ namespace NuSpecHelper
             }
         }
 
-        private static OccSource GetOccConfig()
+        private OccSource GetOccConfig()
         {
             var occ = new OccSource(
-                            "E:\\Dev\\OpenCascade\\occt-14bbbdc\\src",
-                            "E:\\Dev\\XbimTeam\\XbimGeometry\\Xbim.Geometry.Engine"
-                            );
+                OccFolder.Text,
+                XbimGeomFolder.Text
+                );
             var except = new[] { "CSF_.+" };
             var initlibs = new[]
             {
@@ -800,10 +803,6 @@ namespace NuSpecHelper
             //      Ext: .yacc
             //      Ext:
             //      Ext: .dat
-
-
-
-
         }
 
         private void MakeProject(object sender, RoutedEventArgs e)
