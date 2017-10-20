@@ -307,8 +307,7 @@ namespace NuSpecHelper.Occ
                 {
                     package.CopySource(srcF, dstF, justCopy, _r);
                 }
-            }
-            
+            }              
         }       
     }
 }

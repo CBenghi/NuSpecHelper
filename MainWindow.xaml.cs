@@ -83,6 +83,8 @@ namespace NuSpecHelper
 
         private static IEnumerable<OurOwnNuSpec> GetNuSpecs(DirectoryInfo directoryInfo)
         {
+            if (directoryInfo.FullName.Contains("XbimWebUI"))
+                yield break;
             foreach (var fonnd in directoryInfo.GetFiles(@"*.nuspec"))
             {
                 yield return new OurOwnNuSpec(fonnd);

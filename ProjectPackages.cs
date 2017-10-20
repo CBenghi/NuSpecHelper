@@ -76,6 +76,9 @@ namespace NuSpecHelper
        
         internal static IEnumerable<ProjectPackages> GetFromDir(DirectoryInfo dir)
         {
+            if (dir.FullName.Contains("XbimWebUI"))
+                yield break;          
+
             foreach (var found in dir.GetFiles(@"*packages.config"))
             {
                 yield return new ProjectPackages(found);
