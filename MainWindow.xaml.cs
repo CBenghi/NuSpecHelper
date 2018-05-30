@@ -454,6 +454,8 @@ namespace NuSpecHelper
         );
 
         private Dictionary<string, IpGeo> _geoDictionary;
+
+        
         
         private void Usage(object sender, RoutedEventArgs e)
         {
@@ -610,26 +612,36 @@ namespace NuSpecHelper
 
         private void Map(object sender, RoutedEventArgs e)
         {
+            var calibration = false;
             if (_geoDictionary == null)
                 InitGeoDictionary();
-            //for (double x = 0; x < 61; x += 30)
-            //{
-            //    for (double y = 0; y < 61; y += 30)
-            //    {
-            //        Project(x, y);
-            //    }
-            //}
-            //return;        
-            foreach (var statItem in _geoDictionary.Values)
+
+            FileInfo f = new FileInfo("points.scr");
+            using (var fw = f.CreateText())
             {
-                var lat = statItem.getLatitude();
-                var lon = statItem.getLongitude();
-                var coord = new[] {lon, lat};
-                Project(coord);
+                if (calibration)
+                {
+                    for (double x = 0; x < 180; x += 30)
+                    {
+                        for (double y = 0; y < 61; y += 30)
+                        {
+                            var coord = new[] { x, y };
+                            Project(coord, fw);
+                        }
+                    }
+                    return;
+                }
+                foreach (var statItem in _geoDictionary.Values)
+                {
+                    var lat = statItem.getLatitude();
+                    var lon = statItem.getLongitude();
+                    var coord = new[] { lon, lat };
+                    Project(coord, fw);
+                }
             }
         }
-        
-        private void Project(double[] xy)
+
+        private void Project(double[] xy, StreamWriter fw)
         {
             //An array for the z coordinate
             double[] z = new double[1];
@@ -641,8 +653,8 @@ namespace NuSpecHelper
             //Calls the reproject function that will transform the input location to the output locaiton
             Reproject.ReprojectPoints(xy, z, pStart, pEnd, 0, 1);
 
-            _r.AppendLine("point");
-            _r.AppendLine($"{xy[0]},{xy[1]}");
+            fw.WriteLine("point");
+            fw.WriteLine($"{xy[0]},{xy[1]}");
         }
 
         private void FixCFilter(object sender, RoutedEventArgs e)
@@ -823,6 +835,64 @@ namespace NuSpecHelper
         {
             var occ = GetOccConfig();
             occ.ReplaceSource(_r);
+        }
+
+        private void Geo(object sender, RoutedEventArgs e)
+        {
+            
+
+
+            
+            if (_geoDictionary == null)
+                InitGeoDictionary();
+
+            var d = UsageDirectory();
+
+            // counting
+            Dictionary<string, int> counts = new Dictionary<string, int>();
+            foreach (var fName in d.GetFiles(@"*.log"))
+            {
+                _r.AppendLine("=== Reporting " + fName, Brushes.Blue);
+                using (var tr = File.OpenText(fName.FullName))
+                {
+                    // prepare data
+                    //
+                    var data = new Dictionary<string, List<string>>();
+
+                    string line;
+                    while ((line = tr.ReadLine()) != null)
+                    {
+                        var arr = line.Split(new[] { '\t' }, StringSplitOptions.None);
+                        if (arr.Length != 3)
+                            continue;
+                        var ip = arr[1];
+
+                        if (counts.ContainsKey(ip))
+                        {
+                            counts[ip] += 1;
+                        }
+                        else
+                            counts.Add(ip, 1);
+                    }
+                }
+            }
+            Regex r = new Regex("(\\w+)/(\\w+)");
+            FileInfo f = new FileInfo("georeport.csv");
+            using (var fw = f.CreateText())
+            {
+                foreach (var key in counts.Keys)
+                {
+                    var geo = _geoDictionary[key];
+                    var timezone = geo.time_zone;
+
+                    var m = r.Match(timezone);
+                    var continent = m.Groups[1].Value;
+                    if (string.IsNullOrEmpty(continent))
+                        continue;
+
+                    fw.WriteLine($"{continent}\t{geo.country_name}\t{geo.region_name}\t{geo.city}\t{counts[key]}");
+                }
+            }
         }
     }
 }

@@ -72,8 +72,9 @@
                                 <ComboBoxItem Content="Timeline"/>
                             </ComboBox>
                             <CheckBox Name="ReportCount" Content="Count" Margin="173,70,0,0"  />
-                            <Button Margin="85,0,0,14" Click="Map" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="68">Map</Button>
+                            <Button Margin="0,0,0,14" Click="Map" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="68">Map</Button>
                             <Button Margin="253,0,10,14" Click="Usage" Height="25" VerticalAlignment="Bottom">Report</Button>
+                            <Button Margin="73,0,0,14" Click="Geo" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="68" Content="Geo"/>
                         </Grid>
                     </GroupBox>
 
