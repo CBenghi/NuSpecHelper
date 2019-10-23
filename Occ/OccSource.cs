@@ -385,6 +385,10 @@ namespace NuSpecHelper.Occ
                     package.CopySource(srcF, dstF, justCopy, _r);
                 }
             }
+            foreach (var header in _extraHeaders)
+            {
+                header.CopySource(srcF, dstF, justCopy, _r);
+            }
             System.Windows.MessageBox.Show("Done");
         }
 
@@ -424,12 +428,10 @@ namespace NuSpecHelper.Occ
                 p1.Include(except);
             }
 
-            // extra source
+            // extra source - Exceptions to normal code management includes
             //
-            _extraPackages.Add(new OccPackage(this) { Name = "SHMessage" });
-            //_extraPackages.Add(new OccPackage(this) { Name = "Graphic3d" });
-
-            _extraHeaders.Add(new Header(@"OCC\src\Graphic3d\Graphic3d_Vec4.hxx"));
+            _extraPackages.Add(new OccPackage(this) { Name = "SHMessage" }); // needed for ShapeExtend\ShapeExtend.cxx
+            _extraHeaders.Add(new Header(@"OCC\src\Graphic3d\Graphic3d_Vec4.hxx")); // used in Quantity\Quantity_ColorRGBA.cxx
         }
     }
 }

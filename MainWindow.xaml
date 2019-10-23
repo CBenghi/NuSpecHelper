@@ -13,11 +13,15 @@
         <TabControl Height="173" Margin="10,10,10.429,0" VerticalAlignment="Top">
             <TabItem Header="Local">
                 <Grid Background="#FFE5E5E5">
-                    <Button Content="Find dependency inconsistencies in Nuspec." Margin="85,47,10,0" VerticalAlignment="Top" Click="ButtonBase_OnClick" />
-                    <Button Content="Find updatable (local)" Grid.Column="0" VerticalAlignment="Top" Click="FindUpdate" Margin="85,71,10,0" />
-                    <TextBox x:Name="Folder" Height="23" Margin="85,14,10,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top"/>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="258*"/>
+                        <ColumnDefinition Width="233*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Content="Find dependency inconsistencies in Nuspec." Margin="85,47,10,0" VerticalAlignment="Top" Click="ButtonBase_OnClick" Grid.ColumnSpan="2" />
+                    <Button Content="Find updatable (local)" Grid.Column="0" VerticalAlignment="Top" Click="FindUpdate" Margin="85,71,10,0" Grid.ColumnSpan="2" />
+                    <TextBox x:Name="Folder" Height="23" Margin="85,14,10,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
                     <Label Content="Folder:" HorizontalAlignment="Left" Margin="10,12,0,0" VerticalAlignment="Top" Width="75"/>
-                    <Button x:Name="RemovePackageButton" IsEnabled="False" Content="Remove Unused Packages" Margin="85,95,10,0" Click="RemoveUnused" Height="22" VerticalAlignment="Top" />
+                    <Button x:Name="RemovePackageButton" IsEnabled="False" Content="Remove Unused Packages" Margin="85,95,10,0" Click="RemoveUnused" Height="22" VerticalAlignment="Top" Grid.ColumnSpan="2" />
                     <CheckBox x:Name="chkSaveConfig" Content="Save path config" HorizontalAlignment="Left" Margin="85,122,0,0" VerticalAlignment="Top" IsChecked="True"/>
                 </Grid>
             </TabItem>

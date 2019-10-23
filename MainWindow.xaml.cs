@@ -751,6 +751,7 @@ namespace NuSpecHelper
                     }
                 }
             }
+            _r.AppendLine("See debug info for this event.");
         }
 
         private OccSource GetOccConfig()
@@ -768,12 +769,14 @@ namespace NuSpecHelper
             var occ = GetOccConfig();
             occ.MakeProject();
             occ.MakeProjectFilters();
+            _r.AppendLine($"Projects created with '.new' extension. {DateTime.Now}");
         }
 
         private void MakeProjectFilters(object sender, RoutedEventArgs e)
         {
             var occ = GetOccConfig();
             occ.RenameNew();
+            _r.AppendLine($"Project files renamed. {DateTime.Now}");
         }
 
         private void ReplaceOccSource(object sender, RoutedEventArgs e)

@@ -41,5 +41,21 @@ namespace NuSpecHelper.Occ
                 return folder.Name;
             }
         }
+
+        internal string NameInSrc
+        {
+            get
+            {
+                return _relativeFileName.Replace(@"OCC\src\", "");
+            }
+        } 
+
+        internal void CopySource(string srcF, string dstF, bool justCopy, RichTextBoxReporter r)
+        {
+            r.AppendLine(_relativeFileName);
+            var dest = new FileInfo(Path.Combine(dstF, NameInSrc));
+            var src = new FileInfo(Path.Combine(srcF, NameInSrc));
+            OccPackage.DoCopy(justCopy, dest, src);
+        }
     }
 }

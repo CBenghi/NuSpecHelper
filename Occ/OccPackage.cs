@@ -58,7 +58,7 @@ namespace NuSpecHelper.Occ
 
         private static readonly Regex RegexNewLineFormat = new Regex(@"(\r\n?|\n)", RegexOptions.Compiled);
 
-        private bool NeedNewLineConversion(FileInfo src)
+        static private bool NeedNewLineConversion(FileInfo src)
         {
             var ext = src.Extension;
             if (ReXxx.IsMatch(ext))
@@ -72,13 +72,11 @@ namespace NuSpecHelper.Occ
             return false;
         }
 
-
         internal void CopySource(string srcF, string dstF, bool justCopy, RichTextBoxReporter _r)
         {
             // create package folder
             var dSrc = new DirectoryInfo(Path.Combine(srcF, Name));
             var dDest = new DirectoryInfo(Path.Combine(dstF, Name));
-            dDest.Create();
             foreach (var fileName in FileNames())
             {
                 if (fileName.Contains(":::"))
@@ -86,27 +84,33 @@ namespace NuSpecHelper.Occ
                 _r.AppendLine(fileName);
                 var dest = new FileInfo(Path.Combine(dDest.FullName, fileName));
                 var src = new FileInfo(Path.Combine(dSrc.FullName, fileName));
-                if (justCopy) // just copy
+                DoCopy(justCopy, dest, src);
+            }
+        }
+
+        static internal void DoCopy(bool justCopy, FileInfo dest, FileInfo src)
+        {
+            DirectoryInfo dDest = dest.Directory;
+            if (!dDest.Exists)
+                dDest.Create();
+            if (justCopy) // just copy
+                File.Copy(src.FullName, dest.FullName);
+            else
+            {
+                var needNewLineConversion = NeedNewLineConversion(src);
+                if (!needNewLineConversion)
                     File.Copy(src.FullName, dest.FullName);
                 else
                 {
-                    var needNewLineConversion = NeedNewLineConversion(src);
-                    if (!needNewLineConversion)
-                        File.Copy(src.FullName, dest.FullName);
-                    else
+                    using (var r = src.OpenText())
+                    using (var w = dest.CreateText())
                     {
-                        using (var r = src.OpenText())
-                        using (var w = dest.CreateText())
-                        {
-                            var all = r.ReadToEnd();
-                            all = RegexNewLineFormat.Replace(all, "\r\n");
-                            w.Write(all);
-                        }
+                        var all = r.ReadToEnd();
+                        all = RegexNewLineFormat.Replace(all, "\r\n");
+                        w.Write(all);
                     }
                 }
             }
-            // System.Windows.MessageBox.Show("Done");
         }
-        // System.Windows.MessageBox.Show("Done");
     }
 }
