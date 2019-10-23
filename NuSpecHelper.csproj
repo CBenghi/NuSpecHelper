@@ -123,6 +123,7 @@
     <Compile Include="HierarchicalRepo.cs" />
     <Compile Include="IpGeo.cs" />
     <Compile Include="IReporter.cs" />
+    <Compile Include="Occ\Header.cs" />
     <Compile Include="Occ\OccLib.cs" />
     <Compile Include="Occ\OccPackage.cs" />
     <Compile Include="Occ\OccSource.cs" />

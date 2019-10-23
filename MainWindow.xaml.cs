@@ -759,76 +759,21 @@ namespace NuSpecHelper
                 OccFolder.Text,
                 XbimGeomFolder.Text
                 );
-            var except = new[] { "CSF_.+" };
-            var initlibs = new[]
-            {
-                "TKShHealing",
-                "TKBool",
-                "TKFillet",
-                "TKMesh",
-                "TKOffset"
-            };
-
-            foreach (var initlib in initlibs)
-            {
-                var p1 = occ.GetLib(initlib);
-                p1.Include(except);
-            }
-
+            occ.SetDefaultInitialisation();
             return occ;
         }
-
-        private void Study(object sender, RoutedEventArgs e)
-        {
-            // in Project
-            //
-            //      Configuration Reference
-            //      Core Reference
-            //      Data Reference
-            //      Xml Reference
-            //      h ClInclude
-            //      c ClCompile
-            //      rc ResourceCompile
-            //      ico Image
-
-            //      hxx ClInclude
-            //      cxx ClCompile
-            //      gxx None
-            //      lxx None
-            //      pxx None
-
-            //      tcl None
-            //      bat None
-            //      txt Text
-
-            // found in occ
-            //
-            //      Ext: .cxx
-            //      Ext: .hxx
-            //      Ext: .lxx
-            //      Ext: .gxx
-            //      Ext: .pxx
-            //      Ext: .tcl
-
-            //      Ext: .c
-            //      Ext: .h
-
-            //      Ext: .lex
-            //      Ext: .yacc
-            //      Ext:
-            //      Ext: .dat
-        }
-
+        
         private void MakeProject(object sender, RoutedEventArgs e)
         {
             var occ = GetOccConfig();
             occ.MakeProject();
+            occ.MakeProjectFilters();
         }
 
         private void MakeProjectFilters(object sender, RoutedEventArgs e)
         {
             var occ = GetOccConfig();
-            occ.MakeProjectFilters();
+            occ.RenameNew();
         }
 
         private void ReplaceOccSource(object sender, RoutedEventArgs e)
@@ -839,10 +784,6 @@ namespace NuSpecHelper
 
         private void Geo(object sender, RoutedEventArgs e)
         {
-            
-
-
-            
             if (_geoDictionary == null)
                 InitGeoDictionary();
 
