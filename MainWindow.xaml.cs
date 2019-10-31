@@ -498,7 +498,8 @@ namespace NuSpecHelper
                             if (!_geoDictionary.ContainsKey(ip))
                             {
                                 // attempt to download JSON data as a string
-                                var url = @"http://freegeoip.net/json/" + ip;
+                                // var url = @"http://freegeoip.io/json/" + ip;
+                                var url = $@"http://api.ipstack.com/{ip}?access_key=188f132f43efcdd31528593c06be778b";
                                 var jsonData = w.DownloadString(url);
                                 if (string.IsNullOrEmpty(jsonData))
                                     continue;
