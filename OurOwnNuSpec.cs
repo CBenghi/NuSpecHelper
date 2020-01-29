@@ -1,4 +1,5 @@
 ﻿using NuGet;
+using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -153,12 +154,7 @@ namespace NuSpecHelper
             foreach (var dep in Dependencies)
             {
                 reporter.AppendLine(@"  - " + dep.Id + " " + dep.Version);
-
-                semver.tools.IVersionSpec Iver;
-                semver.tools.VersionSpec.TryParseNuGet(dep.Version, out Iver);
-
-                var ver = (semver.tools.VersionSpec)Iver;
-                
+                var depRequirement = VersionRange.Parse(dep.Version);               
                 foreach (var project in Projects)
                 {
                     var rp = project.RequiredPackages.FirstOrDefault(p => p.Id == dep.Id);
@@ -167,19 +163,19 @@ namespace NuSpecHelper
 
                     try
                     {
-                        var sv = semver.tools.SemanticVersion.Parse(rp.Version);
-                        var sat = ver.Satisfies(sv);
-                        if (!ver.Satisfies(sv))
+                        var sv = NuGet.Versioning.NuGetVersion.Parse(rp.Version);
+                        var sat = depRequirement.Satisfies(sv);
+                        if (!sat)
                         {
                             reporter.AppendLine(
                                 $"    - Mismatch: {rp.Version} referenced in {project.ConfigFile.Directory.Name}/{project.ConfigFile.Name}", Brushes.OrangeRed);
                         }
-                        else if (string.Compare(rp.Version, ver.MinVersion.ToString(), StringComparison.CurrentCulture) != 0)
+                        else if (string.Compare(rp.Version, depRequirement.MinVersion.ToString(), StringComparison.CurrentCulture) != 0)
                         {
                             reporter.AppendLine(
-                                $"    - Warning: MinVersion {ver.MinVersion.ToString()} is lower than installed {rp.Version} in {project.ConfigFile.Directory.Name}/{project.ConfigFile.Name}", Brushes.Orange);
+                                $"    - Warning: MinVersion {depRequirement.MinVersion.ToString()} is lower than installed {rp.Version} in {project.ConfigFile.Directory.Name}/{project.ConfigFile.Name}", Brushes.Orange);
                         }
-                        
+
                     }
                     catch (Exception)
                     {

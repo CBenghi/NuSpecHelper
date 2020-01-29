@@ -767,15 +767,17 @@ namespace NuSpecHelper
         private void MakeProject(object sender, RoutedEventArgs e)
         {
             var occ = GetOccConfig();
-            occ.MakeProject();
-            occ.MakeProjectFilters();
+            if (chkCsProj.IsChecked.Value)
+                occ.MakeProject();
+            if (chkCsProjFilter.IsChecked.Value)
+                occ.MakeProjectFilters();
             _r.AppendLine($"Projects created with '.new' extension. {DateTime.Now}");
         }
 
         private void MakeProjectFilters(object sender, RoutedEventArgs e)
         {
             var occ = GetOccConfig();
-            occ.RenameNew();
+            occ.RenameNew(chkCsProj.IsChecked.Value, chkCsProjFilter.IsChecked.Value);
             _r.AppendLine($"Project files renamed. {DateTime.Now}");
         }
 

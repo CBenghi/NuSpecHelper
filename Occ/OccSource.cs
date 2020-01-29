@@ -11,6 +11,8 @@ namespace NuSpecHelper.Occ
 {
     public class OccSource
     {
+        bool _useTargetFile = false;
+       
         public DirectoryInfo GetDir(string name)
         {
             try
@@ -77,6 +79,9 @@ namespace NuSpecHelper.Occ
             OccDestFolder = new DirectoryInfo(Path.Combine(
                 xbimGeometryProjectFolder,
                 "OCC\\src\\"));
+
+            if (GeometryProjectFolder.FullName.ToLowerInvariant().Contains("xbim50"))
+                _useTargetFile = true;
         }
         
         public IEnumerable<OccLib> AllLibs()
@@ -93,10 +98,14 @@ namespace NuSpecHelper.Occ
         {
             get
             {
-                return new FileInfo(
-                Path.Combine(GeometryProjectFolder.FullName,
-                    "Xbim.Geometry.Engine.vcxproj"
-                ));
+                if (_useTargetFile)
+                {
+                    return new FileInfo(Path.Combine(GeometryProjectFolder.FullName, "Xbim.Geometry.Engine - OCC.targets"));
+                }
+                else
+                {
+                    return new FileInfo(Path.Combine(GeometryProjectFolder.FullName, "Xbim.Geometry.Engine.vcxproj"));
+                }
             }
         }
 
@@ -104,10 +113,7 @@ namespace NuSpecHelper.Occ
         {
             get
             {
-                return new FileInfo(
-                Path.Combine(GeometryProjectFolder.FullName,
-                    "Xbim.Geometry.Engine.vcxproj.new"
-                ));
+                return new FileInfo(csProj.FullName + ".new");
             }
         }
 
@@ -237,11 +243,7 @@ namespace NuSpecHelper.Occ
         {
             get
             {
-                return 
-                new FileInfo(
-                Path.Combine(GeometryProjectFolder.FullName,
-                    "Xbim.Geometry.Engine.vcxproj.filters.new"
-                ));
+                return new FileInfo(csProjFilter.FullName + ".new");
             }
         }
 
@@ -392,10 +394,12 @@ namespace NuSpecHelper.Occ
             System.Windows.MessageBox.Show("Done");
         }
 
-        internal void RenameNew()
+        internal void RenameNew(bool chkCsProj, bool chkCsProjFilter)
         {
-            Rename(csProjNew, csProj);
-            Rename(csProjFilterNew, csProjFilter);
+            if (chkCsProj)
+                Rename(csProjNew, csProj);
+            if (chkCsProjFilter)
+                Rename(csProjFilterNew, csProjFilter);
         }
 
         private void Rename(FileInfo newFi, FileInfo oldFi)
