@@ -213,9 +213,22 @@ namespace NuSpecHelper
                     depRes = depMatch.Identity.Version;
                 }
 
-                var repColor = depRes != "<unknown>" && depReq != depRes
-                    ? Brushes.OrangeRed
-                    : null;
+                Brush repColor = null;
+                if (depRes != "<unknown>")
+                {
+                    var depRequirement = VersionRange.Parse(depReq);
+                    var sv = NuGet.Versioning.NuGetVersion.Parse(depRes);
+
+                    if (!depRequirement.Satisfies(sv))
+                    {
+                        repColor = Brushes.OrangeRed;
+                    }
+                    if (depRequirement.MinVersion < sv)
+                    {
+                        repColor = Brushes.Orange;
+                    }
+
+                }
 
                 reporter.AppendLine($" - {depName}: req: {depReq} avail: {depRes}", repColor);
             }
