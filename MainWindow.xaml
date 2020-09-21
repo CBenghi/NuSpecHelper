@@ -84,6 +84,16 @@
 
                 </Grid>
             </TabItem>
+            <TabItem Header="GitHub">
+                <Grid Background="#FFE5E5E5">
+                    <GroupBox Header="Usage stats valid" Margin="10,10,10,0" VerticalAlignment="Top" Height="125">
+                        <Grid>
+                            <Button Margin="10,10,0,0" Click="CommunityStats" VerticalAlignment="Top" HorizontalAlignment="Left" Width="204" >CommunityStats</Button>
+                            <TextBox x:Name="txtAuth" HorizontalAlignment="Left" Height="23" Margin="10,35,0,0" TextWrapping="Wrap" Text="username:password" VerticalAlignment="Top" Width="204"/>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
             <TabItem Header="OpenCascade">
                 <Grid Background="#FFE5E5E5">
                     <TextBox x:Name="OccFolder" Height="23" Margin="120,12,10,0" TextWrapping="Wrap" Text="C:\Data\Dev\occ\occt\src" VerticalAlignment="Top"/>

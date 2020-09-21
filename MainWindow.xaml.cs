@@ -18,6 +18,10 @@ using NuGet;
 using NuSpecHelper.Occ;
 using XbimPlugin.MvdXML.Viewing;
 using Settings = NuSpecHelper.Properties.Settings;
+using ht = System.Net.Http;
+using Newtonsoft.Json.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace NuSpecHelper
 {
@@ -507,6 +511,7 @@ namespace NuSpecHelper
                                 var deser = JsonConvert.DeserializeObject<IpGeo>(jsonData);
                                 // var s = new StatItem(deser);
                                 _geoDictionary.Add(ip, deser);
+                                Debug.WriteLine($"{ip}");
                             }
 
                             string groupItem;
@@ -840,6 +845,177 @@ namespace NuSpecHelper
                     fw.WriteLine($"{continent}\t{geo.country_name}\t{geo.region_name}\t{geo.city}\t{counts[key]}");
                 }
             }
+        }
+
+        string[] projects = new string[] { "XbimWindowsUI", "XbimEssentials", "XbimGeometry", "XbimWebUI", "XbimExchange", "XbimMvdXML", "XbimGltf",  };
+        // string[] projects = new string[] { "XbimWindowsUI" };
+
+        private async System.Threading.Tasks.Task CommunityStatsAsync()
+        {
+            var stats = new List<stat>();
+            var client = new ht.HttpClient();
+            var byteArray = Encoding.ASCII.GetBytes(txtAuth.Text);
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+
+            client.DefaultRequestHeaders.Add("User-Agent", "Xbim stats");
+
+            // Create the HttpContent for the form to be posted.
+            // var requestContent = new ht.FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("text", "This is a block of text"), });
+            foreach (var project in projects)
+            {
+                await GetPRStats(stats, client, project);
+                await GetIssueStats(stats, client, project);
+                await GetCommentStats(stats, client, project);
+            }
+            var fileName = $"stats.csv";
+            File.Delete(fileName);
+            using (var f = File.CreateText(fileName))
+            {
+                foreach (var stat in stats)
+                {
+                    f.WriteLine($"{stat.date.Year}, {stat.date.Month}, \"{stat.login}\", \"{stat.type}\", \"{stat.project}\"");
+                }
+            }
+        }
+
+        private static async Task GetPRStats(List<stat> stats, ht.HttpClient client, string project)
+        {
+            var complete = false;
+            var url = $"https://api.github.com/repos/xBimTeam/{project}/pulls";
+            int iPage = 1;
+            while (!complete)
+            {
+                // Get the response.
+                var t = url + "?page=" + iPage + "&per_page=30&state=all";
+                Debug.WriteLine(t);
+                ht.HttpResponseMessage response = await client.GetAsync(t);
+                // Get the response content.
+                ht.HttpContent responseContent = response.Content;
+
+                // Get the stream of the content.
+                using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                {
+                    // Write the output.
+                    var content = await reader.ReadToEndAsync();
+                    var items = JArray.Parse(content);
+                    // JArray comments = (JArray)data["channel"]["item"][0]["category"];
+                    foreach (var item in items)
+                    {
+                        var user = item["user"]["login"].ToString();
+                        var created = item["created_at"].ToString();
+                        DateTime createdDate = DateTime.Parse(created);
+
+                        var s = new stat()
+                        {
+                            login = user,
+                            date = createdDate,
+                            project = project,
+                            type = "PR"
+                        };
+                        stats.Add(s);
+                    }
+                    iPage++;
+                    complete = (items.Count < 30);
+                }
+            }
+        }
+
+        private static async Task GetIssueStats(List<stat> stats, ht.HttpClient client, string project)
+        {
+            var complete = false;
+            var url = $"https://api.github.com/repos/xBimTeam/{project}/issues";
+            int iPage = 1;
+            while (!complete)
+            {
+                // Get the response.
+                var t = url + "?page=" + iPage + "&per_page=30&state=all";
+                Debug.WriteLine(t);
+                ht.HttpResponseMessage response = await client.GetAsync(t);
+                // Get the response content.
+                ht.HttpContent responseContent = response.Content;
+
+                // Get the stream of the content.
+                using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                {
+                    // Write the output.
+                    var content = await reader.ReadToEndAsync();
+                    var items = JArray.Parse(content);
+                    // JArray comments = (JArray)data["channel"]["item"][0]["category"];
+                    foreach (var item in items)
+                    {
+                        var user = item["user"]["login"].ToString();
+                        var created = item["created_at"].ToString();
+                        DateTime createdDate = DateTime.Parse(created);
+
+                        var s = new stat()
+                        {
+                            login = user,
+                            date = createdDate,
+                            project = project,
+                            type = "Issue"
+                        };
+                        stats.Add(s);
+                    }
+                    iPage++;
+                    complete = (items.Count < 30);
+                }
+            }
+        }
+
+        private static async Task GetCommentStats(List<stat> stats, ht.HttpClient client, string project)
+        {
+            var complete = false;
+            var url = $"https://api.github.com/repos/xBimTeam/{project}/issues/comments";
+            int iPage = 1;
+            while (!complete)
+            {
+                // Get the response.
+                var t = url + "?page=" + iPage;
+                Debug.WriteLine(t);
+                ht.HttpResponseMessage response = await client.GetAsync(t);
+                // Get the response content.
+                ht.HttpContent responseContent = response.Content;
+
+                // Get the stream of the content.
+                using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                {
+                    // Write the output.
+                    var content = await reader.ReadToEndAsync();
+                    var items = JArray.Parse(content);
+                    // JArray comments = (JArray)data["channel"]["item"][0]["category"];
+                    foreach (var item in items)
+                    {
+                        var user = item["user"]["login"].ToString();
+                        var created = item["created_at"].ToString();
+                        DateTime createdDate = DateTime.Parse(created);
+
+                        var s = new stat()
+                        {
+                            login = user,
+                            date = createdDate,
+                            project = project,
+                            type = "Comment"
+                        };
+                        stats.Add(s);
+                    }
+                    iPage++;
+                    complete = (items.Count < 30);
+                }
+            }
+        }
+
+        private class stat
+        {
+            public string login { get; set; }
+            public DateTime date { get; set; }
+            public string project { get; set; }
+            public string type { get; set; }
+
+        }
+
+        private void CommunityStats(object sender, RoutedEventArgs e)
+        {
+            CommunityStatsAsync();
         }
     }
 }
