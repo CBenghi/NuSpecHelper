@@ -1017,5 +1017,18 @@ namespace NuSpecHelper
         {
             CommunityStatsAsync();
         }
+
+        private void DistinctPlaces(object sender, RoutedEventArgs e)
+        {
+            InitGeoDictionary();
+            using (var f = File.CreateText("geoDistinct.csv"))
+            {
+                f.WriteLine("\"country_name\",\"city\",\"time_zone\"");
+                foreach (var geo in _geoDictionary.Values)
+                {
+                    f.WriteLine($"\"{geo.country_name}\",\"{geo.city}\",\"{geo.time_zone}\"");
+                }
+            }
+        }
     }
 }

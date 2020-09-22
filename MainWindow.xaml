@@ -14,15 +14,16 @@
             <TabItem Header="Local">
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="258*"/>
+                        <ColumnDefinition Width="181*"/>
+                        <ColumnDefinition Width="77*"/>
                         <ColumnDefinition Width="233*"/>
                     </Grid.ColumnDefinitions>
-                    <Button Content="Find dependency inconsistencies in Nuspec." Margin="85,47,10,0" VerticalAlignment="Top" Click="ButtonBase_OnClick" Grid.ColumnSpan="2" />
-                    <Button Content="Find updatable (local)" Grid.Column="0" VerticalAlignment="Top" Click="FindUpdate" Margin="85,71,10,0" Grid.ColumnSpan="2" />
-                    <TextBox x:Name="Folder" Height="23" Margin="85,14,10,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+                    <Button Content="Find dependency inconsistencies in Nuspec." Margin="85,47,10,0" VerticalAlignment="Top" Click="ButtonBase_OnClick" Grid.ColumnSpan="3" />
+                    <Button Content="Find updatable (local)" Grid.Column="0" VerticalAlignment="Top" Click="FindUpdate" Margin="85,71,10,0" Grid.ColumnSpan="3" />
+                    <TextBox x:Name="Folder" Height="23" Margin="85,14,10,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Grid.ColumnSpan="3"/>
                     <Label Content="Folder:" HorizontalAlignment="Left" Margin="10,12,0,0" VerticalAlignment="Top" Width="75"/>
-                    <Button x:Name="RemovePackageButton" IsEnabled="False" Content="Remove Unused Packages" Margin="85,95,10,0" Click="RemoveUnused" Height="22" VerticalAlignment="Top" Grid.ColumnSpan="2" />
-                    <CheckBox x:Name="chkSaveConfig" Content="Save path config" HorizontalAlignment="Left" Margin="85,122,0,0" VerticalAlignment="Top" IsChecked="True"/>
+                    <Button x:Name="RemovePackageButton" IsEnabled="False" Content="Remove Unused Packages" Margin="85,95,10,0" Click="RemoveUnused" Height="22" VerticalAlignment="Top" Grid.ColumnSpan="3" />
+                    <CheckBox x:Name="chkSaveConfig" Content="Save path config" HorizontalAlignment="Left" Margin="85,122,0,0" VerticalAlignment="Top" IsChecked="True" Grid.ColumnSpan="2"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Repos">
@@ -77,8 +78,9 @@
                             </ComboBox>
                             <CheckBox Name="ReportCount" Content="Count" Margin="173,70,0,0"  />
                             <Button Margin="0,0,0,14" Click="Map" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="68">Map</Button>
-                            <Button Margin="253,0,10,14" Click="Usage" Height="25" VerticalAlignment="Bottom">Report</Button>
+                            <Button Margin="369,0,10,14" Click="Usage" Height="25" VerticalAlignment="Bottom">Report</Button>
                             <Button Margin="73,0,0,14" Click="Geo" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="68" Content="Geo"/>
+                            <Button Margin="284,0,95,14" Click="DistinctPlaces" Height="25" VerticalAlignment="Bottom" Content="Distinct places"/>
                         </Grid>
                     </GroupBox>
 
