@@ -22,6 +22,7 @@ using ht = System.Net.Http;
 using Newtonsoft.Json.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NuSpecHelper.osg;
 
 namespace NuSpecHelper
 {
@@ -733,23 +734,28 @@ namespace NuSpecHelper
         {
             var occ = GetOccConfig();
 
+            var pCount = 0;
+            var fCount = 0;
             var lstExtensions = new List<string>();
-            foreach (var lib in occ.AllLibs())
+            var libs = occ.AllLibs().ToList();
+            foreach (var lib in libs)
             {
+                pCount += lib.Packages.Count;
                 // Debug.WriteLine(lib.Name);
                 foreach (var libPackage in lib.Packages)
                 {
                     // Debug.WriteLine("\t" + libPackage.Name);
-                    foreach (var fileName in libPackage.FileNames())
+                    var files = libPackage.FileNames().ToList();
+                    fCount += files.Count;
+                    foreach (var fileName in files)
                     {
+                        // this list all the extensions found just once.
                         // Debug.WriteLine("\t\t" + fileName);
                         var ext = Path.GetExtension(fileName);
-
                         if (ext == ".yacc")
                         {
-                            Debug.WriteLine("File : " + fileName);
+                            Debug.WriteLine("File : " + fileName + " I don't remember why yaccs are displayed differntly");
                         }
-
                         if (lstExtensions.Contains(ext))
                             continue;
                         Debug.WriteLine("Ext: " + ext);
@@ -757,7 +763,10 @@ namespace NuSpecHelper
                     }
                 }
             }
-            _r.AppendLine("See debug info for this event.");
+            _r.AppendLine($"libs: {libs.Count}");
+            _r.AppendLine($"Packages: {pCount}");
+            _r.AppendLine($"Files: {fCount}");
+            _r.AppendLine("See debug info for details.");
         }
 
         private OccSource GetOccConfig()
@@ -774,9 +783,19 @@ namespace NuSpecHelper
         {
             var occ = GetOccConfig();
             if (chkCsProj.IsChecked.Value)
-                occ.MakeProject();
+            {
+                var tagfound =                 occ.MakeProject();
+                if (!tagfound)
+                {
+                    _r.AppendLine($"Error: occ injection tag '<!-- occSource -->' not found. {DateTime.Now}");
+                }
+            }
             if (chkCsProjFilter.IsChecked.Value)
-                occ.MakeProjectFilters();
+            {
+                var ret = occ.MakeProjectFilters();
+                if (ret != "")
+                    _r.AppendLine($"{ret}\r\n{DateTime.Now}");
+            }
             _r.AppendLine($"Projects created with '.new' extension. {DateTime.Now}");
         }
 
@@ -1029,6 +1048,21 @@ namespace NuSpecHelper
                     f.WriteLine($"\"{geo.country_name}\",\"{geo.city}\",\"{geo.time_zone}\"");
                 }
             }
+        }
+
+        private void MakeRelativeProject(object sender, RoutedEventArgs e)
+        {
+            return;
+            // function was only experimental... ignore.
+            DirectoryInfo d = new DirectoryInfo(osgFolder.Text);
+            var projects = d.GetFiles("*.vcxproj", SearchOption.AllDirectories);
+
+            foreach (var project in projects)
+            {
+                VcxProjFixer p = new VcxProjFixer(project);
+                p.Fix(d);
+            }
+
         }
     }
 }

@@ -98,7 +98,7 @@
             </TabItem>
             <TabItem Header="OpenCascade">
                 <Grid Background="#FFE5E5E5">
-                    <TextBox x:Name="OccFolder" Height="23" Margin="120,12,10,0" TextWrapping="Wrap" Text="C:\Data\Dev\occ\occt\src" VerticalAlignment="Top"/>
+					<TextBox x:Name="OccFolder" Height="23" Margin="120,12,10,0" TextWrapping="Wrap" Text="C:\Data\Dev\3rdParty_Nobackup\occt\src" VerticalAlignment="Top"/>
                     <Label Content="OCCFolder" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75"/>
 
                     <TextBox x:Name="XbimGeomFolder" Height="23" Margin="120,40,10,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top"/>
@@ -110,11 +110,17 @@
                     <Button Content="Replace source files" Click="ReplaceOccSource" Margin="10,109,324,0" Height="22" VerticalAlignment="Top" />
                     <CheckBox x:Name="chkCsProj" Content="vcxproj" HorizontalAlignment="Left" Margin="314,87,0,0" VerticalAlignment="Top"/>
                     <CheckBox x:Name="chkCsProjFilter" Content="vcxproj.filters" HorizontalAlignment="Left" Margin="314,109,0,0" VerticalAlignment="Top"/>
-
-
-
                 </Grid>
             </TabItem>
+            <TabItem Header="OSG">
+                <Grid Background="#FFFFaaaa">
+                    <TextBox x:Name="osgFolder" Height="23" Margin="120,12,10,0" TextWrapping="Wrap" Text="C:\Data\Dev\XbimPrivate\osg_copy2\" VerticalAlignment="Top"/>
+                    <Label Content="OSG Folder" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75"/>
+                    <Button Content="MakeRelative" Click="MakeRelativeProject" Margin="120,40,214,0" Height="22" VerticalAlignment="Top" />
+                    <Label Content="NOT IN USE" HorizontalAlignment="Left" Margin="120,85,0,0" VerticalAlignment="Top" Width="75" FontWeight="Bold"/>
+                </Grid>
+            </TabItem>
+
         </TabControl>
 
 

@@ -130,6 +130,7 @@
     <Compile Include="Occ\OccLib.cs" />
     <Compile Include="Occ\OccPackage.cs" />
     <Compile Include="Occ\OccSource.cs" />
+    <Compile Include="osg\CsProjFixer.cs" />
     <Compile Include="PackageIdentity.cs" />
     <Compile Include="ProjectPackages.cs" />
     <Compile Include="Repository.cs" />

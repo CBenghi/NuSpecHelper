@@ -33,10 +33,12 @@ namespace NuSpecHelper.Occ
             switch (extension)
             {
                 case ".hxx":
+                case ".pxx":
                 case ".h":
                     return "ClInclude";
                 case ".cxx":
                 case ".c":
+                case ".cpp":
                     return "ClCompile";
                 case ".rc":
                     return "ResourceCompile";
@@ -134,9 +136,9 @@ namespace NuSpecHelper.Occ
             
 
 
-        public void MakeProject()
+        public bool MakeProject()
         {
-            
+            bool sourcetagfound = false;
             var packageFoldersList = string.Join(";", packageFolders.ToArray());
             var replaceAdditional = $"      <AdditionalIncludeDirectories>{packageFoldersList};$(CSF_OPT_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>";
             var reIncludeAction = new Regex("<(?<action>[\\S]+) *Include=\"(?<file>[^\"]+?)(\\.(?<ext>[\\w]+))?\" */>", RegexOptions.Compiled);
@@ -197,6 +199,7 @@ namespace NuSpecHelper.Occ
                     // <!-- occSource -->
                     if (line.Contains("<!-- occSource -->"))
                     {
+                        sourcetagfound = true;
                         // populate source
                         foreach (var package in AllPackages())
                         {
@@ -224,6 +227,7 @@ namespace NuSpecHelper.Occ
                     newProject.WriteLine(line);
                 }
             }
+            return sourcetagfound;
         }
 
         private const string sourceFiles = "Source files";
@@ -247,9 +251,9 @@ namespace NuSpecHelper.Occ
             }
         }
 
-        public void MakeProjectFilters()
+        public string MakeProjectFilters()
         {
-
+            var ret = "";
             // the approach chosen is to process the file as string in memory
             var filterProj = "";
             using (var filters = csProjFilter.OpenText())
@@ -274,67 +278,84 @@ namespace NuSpecHelper.Occ
             var reRemoveEmptyItemGroups = new Regex("[ \t]*<ItemGroup[^>]*>[ \t\r\n]*?</ItemGroup>[ \t]*[\r\n]*", RegexOptions.Singleline);
             filterProj = reRemoveEmptyItemGroups.Replace(filterProj, "");
 
+
+            StringBuilder sb = null;
+
             // add new occ content filters
             // 
             var hook = "<!-- Filters -->";
-            var sb = new StringBuilder();
-            sb.AppendLine(hook);
-            sb.AppendLine("  <ItemGroup>");
-            AddFilterGroup(sb, $"{sourceFiles}");
-            AddFilterGroup(sb, $"{sourceFiles}\\XbimGeometry");
-            foreach (var lib in AllLibs())
+            if (!filterProj.Contains(hook))
             {
-                AddFilterGroup(sb, $"{sourceFiles}\\{lib.Name}");
-                foreach (var package in lib.Packages)
-                {
-                    AddFilterGroup(sb, $"{sourceFiles}\\{lib.Name}\\{package.Name}");
-                }
+                ret += $"{hook} tag not found in ProjectFilters.\r\n";
             }
-            if (_extraHeaders.Any())
+            else
             {
-                AddFilterGroup(sb, $"{sourceFiles}\\Extra");
-                var dist = _extraHeaders.Select(x => x.JustFolderName).Distinct();
-                foreach (var item in dist)
+                sb = new StringBuilder();
+                sb.AppendLine(hook);
+                sb.AppendLine("  <ItemGroup>");
+                AddFilterGroup(sb, $"{sourceFiles}");
+                AddFilterGroup(sb, $"{sourceFiles}\\XbimGeometry");
+                foreach (var lib in AllLibs())
                 {
-                    AddFilterGroup(sb, $"{sourceFiles}\\Extra\\{item}");
+                    AddFilterGroup(sb, $"{sourceFiles}\\{lib.Name}");
+                    foreach (var package in lib.Packages)
+                    {
+                        AddFilterGroup(sb, $"{sourceFiles}\\{lib.Name}\\{package.Name}");
+                    }
                 }
+                if (_extraHeaders.Any())
+                {
+                    AddFilterGroup(sb, $"{sourceFiles}\\Extra");
+                    var dist = _extraHeaders.Select(x => x.JustFolderName).Distinct();
+                    foreach (var item in dist)
+                    {
+                        AddFilterGroup(sb, $"{sourceFiles}\\Extra\\{item}");
+                    }
+                }
+                sb.Append("  </ItemGroup>");
+                filterProj = filterProj.Replace(hook, sb.ToString());
             }
-            sb.Append("  </ItemGroup>");
-            filterProj = filterProj.Replace(hook, sb.ToString());
 
             // add new occ content files
             // 
             hook = "<!-- OccFiles -->";
-            sb = new StringBuilder();
-            sb.AppendLine(hook);
-            sb.AppendLine("  <ItemGroup>");
-            foreach (var lib in AllLibs())
+            if (!filterProj.Contains(hook))
             {
-                foreach (var package in lib.Packages)
-                {
-                    foreach (var fileName in package.FileNames())
-                    {
-                        AddInclude(sb, package, fileName); // including file in filters
-                    }
-                }
-                
+                ret += $"{hook} tag not found in ProjectFilters.\r\n";
             }
-            // now the extras
-            //
-            foreach (var extra in _extraHeaders)
+            else
             {
-                AddExtraIncludeFilter(sb, extra);
-            }
-            sb.Append("  </ItemGroup>");
-            filterProj = filterProj.Replace(hook, sb.ToString());
+                sb = new StringBuilder();
 
+                sb.AppendLine(hook);
+                sb.AppendLine("  <ItemGroup>");
+                foreach (var lib in AllLibs())
+                {
+                    foreach (var package in lib.Packages)
+                    {
+                        foreach (var fileName in package.FileNames())
+                        {
+                            AddInclude(sb, package, fileName); // including file in filters
+                        }
+                    }
+
+                }
+                // now the extras
+                //
+                foreach (var extra in _extraHeaders)
+                {
+                    AddExtraIncludeFilter(sb, extra);
+                }
+                sb.Append("  </ItemGroup>");
+                filterProj = filterProj.Replace(hook, sb.ToString());
+            }
             // now write buffer
             using (var newFilters = csProjFilterNew.CreateText())
             {
                 newFilters.Write(filterProj);
             }
             //
-            var done = false;
+            return ret;
         }
 
         private void AddInclude(StringBuilder sb, OccPackage package, string file)
@@ -365,7 +386,6 @@ namespace NuSpecHelper.Occ
             sb.AppendLine($"    </Filter>");
         }
 
-        
         internal void ReplaceSource(RichTextBoxReporter _r, bool justCopy = false)
         {
             // empty the existing directory
@@ -434,8 +454,8 @@ namespace NuSpecHelper.Occ
 
             // extra source - Exceptions to normal code management includes
             //
-            _extraPackages.Add(new OccPackage(this) { Name = "SHMessage" }); // needed for ShapeExtend\ShapeExtend.cxx
-            _extraHeaders.Add(new Header(@"OCC\src\Graphic3d\Graphic3d_Vec4.hxx")); // used in Quantity\Quantity_ColorRGBA.cxx
+            // _extraPackages.Add(new OccPackage(this) { Name = "SHMessage" }); // needed for ShapeExtend\ShapeExtend.cxx
+            // _extraHeaders.Add(new Header(@"OCC\src\Graphic3d\Graphic3d_Vec4.hxx")); // used in Quantity\Quantity_ColorRGBA.cxx
         }
     }
 }
