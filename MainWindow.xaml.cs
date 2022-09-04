@@ -754,7 +754,7 @@ namespace NuSpecHelper
                         var ext = Path.GetExtension(fileName);
                         if (ext == ".yacc")
                         {
-                            Debug.WriteLine("File : " + fileName + " I don't remember why yaccs are displayed differntly");
+                            Debug.WriteLine("File : " + fileName + " Bonghi: I don't remember why yaccs are displayed here with an exception.");
                         }
                         if (lstExtensions.Contains(ext))
                             continue;
@@ -784,7 +784,7 @@ namespace NuSpecHelper
             var occ = GetOccConfig();
             if (chkCsProj.IsChecked.Value)
             {
-                var tagfound =                 occ.MakeProject();
+                var tagfound = occ.MakeProject();
                 if (!tagfound)
                 {
                     _r.AppendLine($"Error: occ injection tag '<!-- occSource -->' not found. {DateTime.Now}");
@@ -799,7 +799,7 @@ namespace NuSpecHelper
             _r.AppendLine($"Projects created with '.new' extension. {DateTime.Now}");
         }
 
-        private void MakeProjectFilters(object sender, RoutedEventArgs e)
+        private void RenameProjectFiles(object sender, RoutedEventArgs e)
         {
             var occ = GetOccConfig();
             occ.RenameNew(chkCsProj.IsChecked.Value, chkCsProjFilter.IsChecked.Value);

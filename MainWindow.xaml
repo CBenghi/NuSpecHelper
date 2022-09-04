@@ -98,16 +98,16 @@
             </TabItem>
             <TabItem Header="OpenCascade">
                 <Grid Background="#FFE5E5E5">
-					<TextBox x:Name="OccFolder" Height="23" Margin="120,12,10,0" TextWrapping="Wrap" Text="C:\Data\Dev\3rdParty_Nobackup\occt\src" VerticalAlignment="Top"/>
+                    <TextBox x:Name="OccFolder" Height="23" Margin="120,12,10,0" TextWrapping="Wrap" Text="C:\Data\Dev\3rdParty_Nobackup\occt\src" VerticalAlignment="Top"/>
                     <Label Content="OCCFolder" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75"/>
 
                     <TextBox x:Name="XbimGeomFolder" Height="23" Margin="120,40,10,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top"/>
                     <Label Content="XbimGeomFolder" HorizontalAlignment="Left" Margin="10,38,0,0" VerticalAlignment="Top" Width="105"/>
 
-                    <Button Content="list packages" Click="ListDependencies" Margin="0,82,324,0" Height="22" VerticalAlignment="Top" HorizontalAlignment="Right" Width="158" />
-                    <Button Content="Make New Project" Click="MakeProject" Margin="0,82,190,0" Height="22" VerticalAlignment="Top" HorizontalAlignment="Right" Width="124" />
-                    <Button Content="Replace New Project" Click="MakeProjectFilters" Margin="0,109,190,0" Height="22" VerticalAlignment="Top" HorizontalAlignment="Right" Width="124" />
-                    <Button Content="Replace source files" Click="ReplaceOccSource" Margin="10,109,324,0" Height="22" VerticalAlignment="Top" />
+                    <Button Content="Just list packages" Click="ListDependencies" Margin="9,82,0,0" Height="22" VerticalAlignment="Top" HorizontalAlignment="Left" Width="158" />
+                    <Button Content="Make temp Project" Click="MakeProject" Margin="177,82,0,0" Height="22" VerticalAlignment="Top" HorizontalAlignment="Left" Width="124" />
+                    <Button Content="Replace temp Project" Click="RenameProjectFiles" Margin="177,109,0,0" Height="22" VerticalAlignment="Top" HorizontalAlignment="Left" Width="124" />
+                    <Button Content="Delete and Replace sources" Click="ReplaceOccSource" Margin="10,109,0,0" Height="22" VerticalAlignment="Top" HorizontalAlignment="Left" Width="157" />
                     <CheckBox x:Name="chkCsProj" Content="vcxproj" HorizontalAlignment="Left" Margin="314,87,0,0" VerticalAlignment="Top"/>
                     <CheckBox x:Name="chkCsProjFilter" Content="vcxproj.filters" HorizontalAlignment="Left" Margin="314,109,0,0" VerticalAlignment="Top"/>
                 </Grid>
